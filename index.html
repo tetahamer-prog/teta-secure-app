@@ -4,61 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TETA SECURE - ደቡብ ኦሞ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0b141a; color: white; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        
-        /* Login UI */
+        body { font-family: 'Segoe UI', sans-serif; background: #0b141a; color: white; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         #auth-ui { background: #1f2c33; padding: 40px; border-radius: 15px; width: 320px; text-align: center; border: 1px solid #00a884; }
         input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #2a3942; color: white; outline: none; }
         .login-btn { background: #00a884; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
-        /* Main App UI */
-        #main-app { display: none; flex-direction: column; height: 95vh; width: 100%; max-width: 450px; background: #111b21; border-radius: 15px; overflow: hidden; position: relative; }
-        
-        header { background: #202c33; padding: 12px; text-align: center; border-bottom: 1px solid #222e35; }
-        .header-title { font-weight: bold; color: #00a884; display: block; margin-bottom: 2px; }
-        .encryption-status { font-size: 10px; color: #8696a0; display: flex; align-items: center; justify-content: center; gap: 4px; }
+        #main-app { display: none; flex-direction: column; height: 95vh; width: 100%; max-width: 450px; background: #111b21; border-radius: 15px; overflow: hidden; position: relative; border: 1px solid #222e35; }
+        header { background: #202c33; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header-title { font-weight: bold; color: #00a884; display: block; font-size: 16px; }
+        .call-btns { display: flex; gap: 15px; }
+        .call-btns i { color: #8696a0; cursor: pointer; font-size: 18px; }
 
         #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; background-color: #0b141a; }
+        .msg { max-width: 75%; padding: 8px 12px; border-radius: 12px; font-size: 15px; }
+        .sent { align-self: flex-end; background: #005c4b; }
+        .received { align-self: flex-start; background: #202c33; }
+
+        /* የጥሪ መቀበያ መስኮት (Incoming Call) */
+        #incoming-call-ui { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(11, 20, 26, 0.95); display: none; 
+            flex-direction: column; align-items: center; justify-content: center; z-index: 100; 
+        }
+        .call-animation { width: 100px; height: 100px; border-radius: 50%; background: #00a884; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 168, 132, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(0, 168, 132, 0); } 100% { transform: scale(1); } }
         
-        /* Encryption Notice in Chat */
-        .secure-notice { align-self: center; background: #182229; color: #ffd279; font-size: 11px; padding: 5px 12px; border-radius: 8px; margin-bottom: 15px; text-align: center; border: 1px solid #2a3942; width: 80%; line-height: 1.4; }
+        .call-actions { display: flex; gap: 30px; margin-top: 40px; }
+        .accept-btn { background: #28a745; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .reject-btn { background: #dc3545; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        /* Chat Bubbles */
-        .msg { max-width: 75%; padding: 8px 12px; border-radius: 12px; font-size: 15px; position: relative; line-height: 1.4; }
-        .sent { align-self: flex-end; background: #005c4b; color: white; border-bottom-right-radius: 2px; }
-        .received { align-self: flex-start; background: #202c33; color: white; border-bottom-left-radius: 2px; }
-        .sender-name { font-size: 11px; font-weight: bold; color: #00a884; display: block; margin-bottom: 2px; }
+        #video-grid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; background: black; z-index: 50; flex-direction: column; }
+        video { width: 100%; height: 50%; object-fit: cover; }
 
-        .controls { display: flex; gap: 8px; padding: 12px; background: #202c33; }
-        #msgInput { flex: 1; padding: 10px 15px; border-radius: 20px; border: none; background: #2a3942; color: white; outline: none; }
-        .send-btn { background: #00a884; color: white; border: none; padding: 10px 18px; border-radius: 50%; cursor: pointer; font-size: 18px; }
+        .controls { display: flex; gap: 10px; padding: 12px; background: #202c33; }
+        #msgInput { flex: 1; padding: 10px 15px; border-radius: 25px; border: none; background: #2a3942; color: white; outline: none; }
     </style>
 </head>
 <body>
 
     <div id="auth-ui">
-        <h2 style="color:#00a884;">🛡️ TETA SECURE</h2>
+        <h2 style="color:#00a884;"><i class="fas fa-shield-halved"></i> TETA SECURE</h2>
         <input id="username" placeholder="ሙሉ ስም">
-        <input id="secure-key" type="password" placeholder="ሚስጥራዊ የደህንነት ቁልፍ">
+        <input id="secure-key" type="password" placeholder="ሚስጥራዊ ቁልፍ">
         <button class="login-btn" onclick="login()">ግባ (LOGIN)</button>
     </div>
 
     <div id="main-app">
         <header>
-            <span class="header-title">🛡️ TETA HUB - ደቡብ ኦሞ</span>
-            <span class="encryption-status">🔒 End-to-End Encrypted</span>
+            <div class="header-info">
+                <span class="header-title">🛡️ TETA HUB</span>
+                <span style="font-size: 10px; color: #8696a0;">🔒 End-to-End Encrypted</span>
+            </div>
+            <div class="call-btns">
+                <i class="fas fa-phone" onclick="makeCall('audio')"></i>
+                <i class="fas fa-video" onclick="makeCall('video')"></i>
+            </div>
         </header>
 
-        <div id="chat-box">
-            <div class="secure-notice">
-                🔒 መልዕክቶች እና ጥሪዎች በዚህ ቻት ውስጥ በኮድ የተቆለፉ ናቸው። ከእናንተ ውጭ (TETA SECURE ጭምር) ሊያነባቸው አይችልም።
+        <div id="chat-box"></div>
+
+        <div id="incoming-call-ui">
+            <div class="call-animation"><i class="fas fa-user-shield fa-3x"></i></div>
+            <h3 id="caller-name">ጥሪ እየመጣ ነው...</h3>
+            <div class="call-actions">
+                <div class="accept-btn" onclick="answerCall()"><i class="fas fa-phone fa-lg"></i></div>
+                <div class="reject-btn" onclick="endCall()"><i class="fas fa-phone-slash fa-lg"></i></div>
             </div>
+        </div>
+
+        <div id="video-grid">
+            <video id="remoteVideo" autoplay></video>
+            <video id="localVideo" autoplay muted style="height: 30%; border-top: 2px solid #00a884;"></video>
+            <button onclick="endCall()" style="background:#dc3545; color:white; padding:15px; border:none;">ጥሪውን አቋርጥ</button>
         </div>
 
         <div class="controls">
             <input type="text" id="msgInput" placeholder="መልዕክት ጻፍ..." onkeypress="if(event.key==='Enter') send()">
-            <button class="send-btn" onclick="send()">➤</button>
+            <button onclick="send()" style="background:#00a884; border:none; border-radius:50%; width:40px; height:40px; color:white;"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
@@ -66,22 +90,59 @@
     <script>
         const socket = io();
         let myUser;
+        const ringtone = new Audio('https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3'); // የጥሪ ድምፅ
+        ringtone.loop = true;
 
         function login() {
             const name = document.getElementById('username').value;
             const key = document.getElementById('secure-key').value;
-            if(name && key) {
+            if(name && key === "OMO_SAFETY_2026_SECURE") {
+                myUser = name;
                 socket.emit('verify_secure_access', { username: name, key: key });
-            } else { alert("እባክዎ መረጃዎችን ይሙሉ!"); }
+            } else { alert("ስህተት!"); }
         }
 
         socket.on('login_success', d => {
-            myUser = d.user;
             document.getElementById('auth-ui').style.display = 'none';
             document.getElementById('main-app').style.display = 'flex';
         });
 
-        socket.on('login_failed', d => alert(d.message));
+        // ጥሪ ለመደወል
+        function makeCall(type) {
+            socket.emit('call_user', { from: myUser, type: type });
+            document.getElementById('video-grid').style.display = 'flex';
+            startMedia(type);
+        }
+
+        // ጥሪ ሲመጣ
+        socket.on('incoming_call', (data) => {
+            if (data.from !== myUser) {
+                document.getElementById('caller-name').innerText = data.from + " እየደወለ ነው...";
+                document.getElementById('incoming-call-ui').style.display = 'flex';
+                ringtone.play(); // ድምፅ ማሰማት ይጀምራል
+            }
+        });
+
+        function answerCall() {
+            ringtone.pause();
+            document.getElementById('incoming-call-ui').style.display = 'none';
+            document.getElementById('video-grid').style.display = 'flex';
+            startMedia('video');
+        }
+
+        function endCall() {
+            ringtone.pause();
+            document.getElementById('incoming-call-ui').style.display = 'none';
+            document.getElementById('video-grid').style.display = 'none';
+            if(localStream) localStream.getTracks().forEach(track => track.stop());
+        }
+
+        async function startMedia(type) {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('localVideo').srcObject = localStream;
+            } catch (e) { console.error(e); }
+        }
 
         function send() {
             const text = document.getElementById('msgInput').value;
@@ -91,21 +152,14 @@
             }
         }
 
-        function displayMsg(d) {
-            const chatBox = document.getElementById('chat-box');
+        socket.on('chat_message', d => {
             const div = document.createElement('div');
             const isMe = d.user === myUser;
-            
             div.className = `msg ${isMe ? 'sent' : 'received'}`;
-            const senderHtml = isMe ? "" : `<span class="sender-name">${d.user}</span>`;
-            div.innerHTML = `${senderHtml}${d.text}`;
-            
-            chatBox.appendChild(div);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        socket.on('chat_message', d => displayMsg(d));
-        socket.on('chat_history', h => h.forEach(displayMsg));
+            div.innerHTML = isMe ? d.text : `<b>${d.user}</b><br>${d.text}`;
+            document.getElementById('chat-box').appendChild(div);
+            document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+        });
     </script>
 </body>
 </html>
