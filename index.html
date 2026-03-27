@@ -9,62 +9,79 @@
         body { font-family: 'Segoe UI', sans-serif; background: #0b141a; color: white; margin: 0; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
         #auth-ui { background: #1f2c33; padding: 40px; border-radius: 15px; width: 320px; text-align: center; align-self: center; border: 1px solid #00a884; }
         input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #2a3942; color: white; outline: none; }
-        .login-btn { background: #00a884; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; cursor: pointer; }
-
-        #main-app { display: none; flex-direction: column; height: 100vh; width: 100%; max-width: 500px; background: #111b21; border: 1px solid #222e35; position: relative; }
-        header { background: #202c33; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
-        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background-color: #0b141a; }
         
+        #main-app { display: none; flex-direction: column; height: 100vh; width: 100%; max-width: 500px; background: #111b21; position: relative; }
+        header { background: #202c33; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222e35; }
+        
+        /* Users List Bar */
+        #user-bar { background: #182229; padding: 8px 15px; font-size: 12px; display: flex; gap: 10px; overflow-x: auto; border-bottom: 1px solid #222e35; }
+        .user-tag { background: #2a3942; padding: 4px 10px; border-radius: 15px; color: #00a884; cursor: pointer; border: 1px solid #00a884; white-space: nowrap; }
+
+        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
         .msg { max-width: 80%; padding: 10px; border-radius: 10px; font-size: 15px; position: relative; }
         .sent { align-self: flex-end; background: #005c4b; }
         .received { align-self: flex-start; background: #202c33; }
-        .msg img { max-width: 100%; border-radius: 8px; margin-top: 5px; cursor: pointer; }
+        .status-msg { align-self: center; font-size: 11px; color: #8696a0; background: rgba(0,0,0,0.2); padding: 3px 10px; border-radius: 10px; }
 
-        /* Conference UI */
-        #video-grid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 100; display: none; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; padding: 10px; }
-        video { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; background: #2a3942; }
+        /* Emoji & Private Tool */
+        #emoji-picker { display: none; position: absolute; bottom: 70px; left: 10px; background: #2a3942; padding: 10px; border-radius: 10px; z-index: 100; display: none; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        #emoji-picker span { font-size: 20px; cursor: pointer; }
 
         .controls { display: flex; gap: 10px; padding: 15px; background: #202c33; align-items: center; }
         #msgInput { flex: 1; padding: 12px; border-radius: 25px; border: none; background: #2a3942; color: white; outline: none; }
+        
+        #incoming-call { position: absolute; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
     <div id="auth-ui">
-        <h2 style="color:#00a884;">🛡️ TETA SECURE</h2>
+        <h2 style="color:#00a884;"><i class="fas fa-shield-halved"></i> TETA SECURE</h2>
         <input id="username" placeholder="ሙሉ ስም">
-        <input id="secure-key" type="password" placeholder="ሚስጥራዊ ቁልፍ">
-        <button class="login-btn" onclick="login()">ግባ</button>
+        <input id="secure-key" placeholder="ሚስጥራዊ ቁልፍ" type="password">
+        <button onclick="login()" style="background:#00a884; color:white; border:none; padding:12px; width:100%; border-radius:8px; cursor:pointer;">ግባ</button>
     </div>
 
     <div id="main-app">
         <header>
-            <div><b style="color:#00a884;">🛡️ TETA HUB</b><br><small style="font-size: 10px; color:#8696a0;">🔒 Secure Network</small></div>
+            <div><b style="color:#00a884;">🛡️ TETA HUB</b><br><small id="target-view" style="color:#8696a0;">ለሁሉም (Public)</small></div>
             <div style="display:flex; gap:15px; color:#8696a0;">
-                <i class="fas fa-video" onclick="startCall()" style="cursor:pointer;"></i>
-                <i class="fas fa-phone" onclick="startCall()" style="cursor:pointer;"></i>
+                <i class="fas fa-video" onclick="initiateCall('video')" style="cursor:pointer;"></i>
+                <i class="fas fa-phone" onclick="initiateCall('audio')" style="cursor:pointer;"></i>
             </div>
         </header>
 
-        <div id="video-grid">
-            <video id="localVideo" autoplay muted></video>
-            <button onclick="endCall()" style="position:absolute; bottom:20px; left:50%; transform:translateX(-50%); background:#dc3545; color:white; border:none; padding:15px; border-radius:50%;"><i class="fas fa-phone-slash"></i></button>
-        </div>
+        <div id="user-bar"></div>
 
         <div id="chat-box"></div>
 
+        <div id="emoji-picker">
+            <span onclick="addEmoji('😊')">😊</span><span onclick="addEmoji('🫡')">🫡</span>
+            <span onclick="addEmoji('🚨')">🚨</span><span onclick="addEmoji('✅')">✅</span>
+            <span onclick="addEmoji('🇪🇹')">🇪🇹</span>
+        </div>
+
+        <div id="incoming-call">
+            <h2 id="caller-id">ጥሪ...</h2>
+            <div style="display:flex; gap:20px;">
+                <button onclick="endCall()" style="background:#dc3545; border:none; padding:15px; border-radius:50%; color:white;"><i class="fas fa-phone-slash"></i></button>
+                <button onclick="acceptCall()" style="background:#28a745; border:none; padding:15px; border-radius:50%; color:white;"><i class="fas fa-phone"></i></button>
+            </div>
+        </div>
+
         <div class="controls">
-            <i class="fas fa-paperclip" style="color:#8696a0; cursor:pointer;" onclick="triggerFile()"></i>
+            <i class="fas fa-smile" style="color:#8696a0; cursor:pointer;" onclick="toggleEmoji()"></i>
+            <i class="fas fa-paperclip" style="color:#8696a0; cursor:pointer;" onclick="document.getElementById('fileInput').click()"></i>
             <input type="file" id="fileInput" style="display:none" onchange="sendFile(this)">
-            <input type="text" id="msgInput" placeholder="መልዕክት ጻፍ..." onkeypress="if(event.key==='Enter') send()">
-            <button onclick="send()" style="background:#00a884; border:none; width:40px; height:40px; border-radius:50%; color:white;"><i class="fas fa-paper-plane"></i></button>
+            <input type="text" id="msgInput" placeholder="መልዕክት..." onkeypress="if(event.key==='Enter') sendMsg()">
+            <button onclick="sendMsg()" style="background:#00a884; border:none; width:40px; height:40px; border-radius:50%; color:white;"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        let myUser;
+        let myUser, selectedUser = null;
 
         function login() {
             const name = document.getElementById('username').value;
@@ -75,61 +92,76 @@
             } else { alert("ስህተት!"); }
         }
 
-        socket.on('login_success', d => {
+        socket.on('login_success', () => {
             document.getElementById('auth-ui').style.display = 'none';
             document.getElementById('main-app').style.display = 'flex';
         });
 
-        // ፋይል ለመላክ
-        function triggerFile() { document.getElementById('fileInput').click(); }
-        function sendFile(input) {
-            const file = input.files[0];
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => {
-                socket.emit('chat_message', { user: myUser, text: file.name, file: reader.result, fType: file.type });
-            };
+        // ኦንላይን/ኦፍላይን ሁኔታ ማሳያ
+        socket.on('user_status', d => {
+            const bar = document.getElementById('user-bar');
+            bar.innerHTML = d.allUsers.map(u => `<span class="user-tag" onclick="selectUser('${u}')">${u === myUser ? 'እኔ' : u}</span>`).join('');
+            
+            const div = document.createElement('div');
+            div.className = "status-msg";
+            div.innerText = `${d.user} ${d.status === 'online' ? 'ገባ' : 'ወጣ'}`;
+            document.getElementById('chat-box').appendChild(div);
+        });
+
+        function selectUser(user) {
+            if(user === myUser) { selectedUser = null; document.getElementById('target-view').innerText = "ለሁሉም (Public)"; }
+            else { selectedUser = user; document.getElementById('target-view').innerText = "ለ " + user + " (Private)"; }
         }
 
-        // ቪዲዮ ኮንፈረንስ
-        async function startCall() {
-            document.getElementById('video-grid').style.display = 'grid';
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            document.getElementById('localVideo').srcObject = stream;
-            socket.emit('start_conference', { from: myUser });
+        function toggleEmoji() { 
+            const p = document.getElementById('emoji-picker');
+            p.style.display = p.style.display === 'grid' ? 'none' : 'grid';
         }
+        function addEmoji(e) { document.getElementById('msgInput').value += e; toggleEmoji(); }
 
-        function endCall() {
-            location.reload(); // ለጊዜው ሪፍሬሽ በማድረግ ጥሪውን ይዘጋል
-        }
-
-        function send() {
+        function sendMsg() {
             const txt = document.getElementById('msgInput').value;
             if(txt) {
-                socket.emit('chat_message', { user: myUser, text: txt });
+                socket.emit('chat_message', { user: myUser, text: txt, to: selectedUser });
                 document.getElementById('msgInput').value = '';
             }
         }
 
-        function displayMsg(d) {
-            const box = document.getElementById('chat-box');
-            const div = document.createElement('div');
-            const isMe = d.user === myUser;
-            div.className = `msg ${isMe ? 'sent' : 'received'}`;
-            
-            let content = d.text;
-            if(d.file) {
-                if(d.fType.startsWith('image/')) content = `<img src="${d.file}"><br><small>${d.text}</small>`;
-                else content = `<i class="fas fa-file"></i> <a href="${d.file}" download="${d.text}" style="color:white;">${d.text}</a>`;
-            }
-            div.innerHTML = isMe ? content : `<b>${d.user}</b><br>${content}`;
-            box.appendChild(div);
-            box.scrollTop = box.scrollHeight;
+        function sendFile(input) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => socket.emit('chat_message', { user: myUser, text: file.name, file: reader.result, fType: file.type, to: selectedUser });
         }
 
-        socket.on('chat_message', d => displayMsg(d));
-        socket.on('chat_history', h => h.forEach(displayMsg));
-        socket.on('incoming_conference', d => alert(d.from + " የቪዲዮ ኮንፈረንስ ጀምሯል! ለመቀላቀል የቪዲዮ ምልክቱን ይጫኑ።"));
+        socket.on('chat_message', d => {
+            const box = document.getElementById('chat-box');
+            const div = document.createElement('div');
+            div.className = `msg ${d.user === myUser ? 'sent' : 'received'}`;
+            let content = d.text;
+            if(d.file) {
+                if(d.fType.startsWith('image/')) content = `<img src="${d.file}" style="max-width:100%"><br>${d.text}`;
+                else content = `<i class="fas fa-file"></i> <a href="${d.file}" download="${d.text}" style="color:white">${d.text}</a>`;
+            }
+            div.innerHTML = (d.to ? "🔒 (Private) " : "") + `<b>${d.user}:</b><br>${content}`;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        });
+
+        function initiateCall(type) {
+            if(!selectedUser) return alert("እባክዎ መጀመሪያ የሚደውሉለትን ሰው ከላይ ይምረጡ!");
+            socket.emit('call_user', { from: myUser, to: selectedUser, type: type });
+            alert(selectedUser + " እየተደወለ ነው...");
+        }
+
+        socket.on('incoming_call', d => {
+            document.getElementById('caller-id').innerText = d.from + " እየደወለ ነው...";
+            document.getElementById('incoming-call').style.display = 'flex';
+        });
+
+        function endCall() { document.getElementById('incoming-call').style.display = 'none'; }
+        function acceptCall() { alert("ጥሪው ተገናኝቷል!"); endCall(); }
+        socket.on('chat_history', h => h.forEach(m => socket.on('chat_message', m)));
     </script>
 </body>
 </html>
