@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TETA BRAND - All Features</title>
+    <title>TETA BRAND - Complete Master</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --tg-header: #2481cc; --tg-bg: #e6eff5; --tg-sent: #effdde; --tg-primary: #2481cc; --muted: #707579; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; background: var(--tg-bg); }
 
-        /* 1. BRAND LOGO (ያንተን ስም የሚያደምቅ) */
-        .teta-logo { width: 90px; height: 90px; background: var(--tg-primary); color: white; border-radius: 25px; display: flex; align-items: center; justify-content: center; font-size: 35px; font-weight: bold; margin: 0 auto 20px; box-shadow: 0 10px 20px rgba(36,129,204,0.3); border: 3px solid rgba(255,255,255,0.2); }
+        /* Brand Logo Style */
+        .teta-logo { width: 80px; height: 80px; background: var(--tg-primary); color: white; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: bold; margin: 0 auto 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
         /* Sidebar & Layout */
         #menu-sidebar { width: 280px; background: white; position: fixed; left: -280px; height: 100%; transition: 0.3s; z-index: 2000; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
@@ -18,29 +18,27 @@
         #chat-list-column { width: 320px; background: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; flex-shrink: 0; }
         #main-chat { flex: 1; display: flex; flex-direction: column; position: relative; }
 
-        /* 2. STORIES (ተጠብቆ የቆየ) */
-        #story-bar { display: flex; gap: 10px; padding: 10px; overflow-x: auto; border-bottom: 1px solid #eee; background: white; min-height: 75px; }
-        .st-circle { width: 55px; height: 55px; border-radius: 50%; border: 2px solid var(--tg-primary); flex-shrink: 0; padding: 2px; cursor: pointer; }
-        .st-circle img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-
-        /* 3. WALLPAPER & CHAT (ተጠብቆ የቆየ) */
+        /* Chat UI & Messages */
         header { background: var(--tg-header); color: white; padding: 10px 15px; display: flex; align-items: center; gap: 15px; z-index: 10; }
         #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; background-size: cover; background-position: center; }
-        
         .msg { max-width: 75%; padding: 8px 12px; border-radius: 10px; font-size: 14.5px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); position: relative; cursor: pointer; }
-        .sent { align-self: flex-end; background: var(--tg-sent); border-bottom-right-radius: 2px; }
-        .received { align-self: flex-start; background: white; border-bottom-left-radius: 2px; }
+        .sent { align-self: flex-end; background: var(--tg-sent); }
+        .received { align-self: flex-start; background: white; }
 
-        /* 4. REELS/MEMORIES OVERLAY */
-        #memories-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 7000; flex-direction: column; padding: 20px; color: white; overflow-y: auto; }
-        .memory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
-        .memory-item { width: 100%; height: 160px; object-fit: cover; border-radius: 12px; border: 1px solid #444; }
+        /* Overlays (Contacts, Memories, etc.) */
+        #contacts-overlay, #memories-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 4000; flex-direction: column; }
+        #memories-overlay { background: #000; color: white; overflow-y: auto; }
+        .contact-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 15px; cursor: pointer; }
+        .memory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }
+        .memory-item { width: 100%; height: 150px; object-fit: cover; border-radius: 10px; }
 
         /* UI Helpers */
         .input-bar { background: white; padding: 10px; display: flex; align-items: center; gap: 15px; border-top: 1px solid #ddd; }
-        #auth { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f4f7f9; display: flex; align-items: center; justify-content: center; z-index: 9000; }
-        #delete-menu { display: none; position: fixed; background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 6000; padding: 10px; width: 180px; }
+        .menu-item { padding: 15px 20px; display: flex; align-items: center; gap: 20px; cursor: pointer; transition: 0.2s; }
+        .menu-item:hover { background: #f5f5f5; }
+        #auth { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f0f2f5; display: flex; align-items: center; justify-content: center; z-index: 9000; }
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 1500; }
+        #delete-menu { display: none; position: fixed; background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 6000; padding: 10px; width: 180px; }
     </style>
 </head>
 <body onclick="hideDeleteMenu()">
@@ -49,30 +47,31 @@
 
     <div id="menu-sidebar">
         <div style="background: var(--tg-header); padding: 30px 20px; color: white;">
-            <div id="side-p" style="width:55px; height:55px; background:rgba(255,255,255,0.2); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:bold; border:1px solid white; margin-bottom:10px;">T</div>
+            <div style="width:55px; height:55px; background:rgba(255,255,255,0.2); border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:bold; border:1px solid white; margin-bottom:10px;">T</div>
             <b id="side-n">ተክለማርያም</b>
         </div>
-        <div class="menu-item" style="padding:15px; cursor:pointer;" onclick="showMemories()"><i class="fas fa-film"></i> Memories (Reels)</div>
-        <div class="menu-item" style="padding:15px; cursor:pointer;" onclick="document.getElementById('wall-up').click()"><i class="fas fa-image"></i> Change Wallpaper</div>
+        <div class="menu-item" onclick="showContacts()"><i class="fas fa-user"></i> Contacts</div>
+        <div class="menu-item" onclick="showMemories()"><i class="fas fa-film"></i> Memories (Reels)</div>
+        <div class="menu-item" onclick="document.getElementById('wall-up').click()"><i class="fas fa-image"></i> Change Wallpaper</div>
         <input type="file" id="wall-up" style="display:none" onchange="changeWallpaper(this)">
-        <div class="menu-item" style="padding:15px; cursor:pointer; color:red;" onclick="clearStorage()"><i class="fas fa-trash"></i> Clear All History</div>
-        <div class="menu-item" style="padding:15px; cursor:pointer;" onclick="location.reload()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+        <div class="menu-item" onclick="clearStorage()" style="color:red;"><i class="fas fa-trash"></i> Reset All Data</div>
+        <div class="menu-item" onclick="location.reload()"><i class="fas fa-sign-out-alt"></i> Logout</div>
     </div>
 
     <div id="chat-list-column">
         <div style="padding: 15px; display: flex; align-items: center; gap: 15px;">
             <i class="fas fa-bars" onclick="openSidebar()" style="cursor:pointer; color: var(--tg-primary); font-size: 20px;"></i>
-            <b style="color:var(--tg-primary); font-size:18px;">TETA BRAND</b>
+            <b style="color:var(--tg-primary)">TETA BRAND</b>
         </div>
-        <div id="story-bar">
-            <div class="st-circle" style="border: 2px dashed #ccc; display:flex; align-items:center; justify-content:center;" onclick="document.getElementById('st-up').click()"><i class="fas fa-plus"></i></div>
+        <div id="story-bar" style="display: flex; gap: 10px; padding: 10px; overflow-x: auto; border-bottom: 1px solid #eee;">
+            <div class="st-circle" style="width:50px; height:50px; border-radius:50%; border:2px dashed #ccc; display:flex; align-items:center; justify-content:center; flex-shrink:0;" onclick="document.getElementById('st-up').click()"><i class="fas fa-plus"></i></div>
             <input type="file" id="st-up" style="display:none" onchange="uploadStory(this)">
             <div id="story-list" style="display:flex; gap:10px;"></div>
         </div>
-        <div id="chats-container" style="flex: 1; overflow-y: auto;">
-            <div style="padding:15px; display:flex; gap:12px; cursor:pointer;" onclick="selectChat('TETA AI ✨', 'T')">
-                <div style="width:50px; height:50px; border-radius:50%; background:var(--tg-primary); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold;">T</div>
-                <div><b>TETA AI ✨</b><br><small class="muted">🔒 Encrypted Message</small></div>
+        <div style="flex: 1; overflow-y: auto;">
+            <div class="contact-item" onclick="selectChat('TETA AI ✨', 'T')">
+                <div style="width:48px; height:48px; border-radius:50%; background:var(--tg-primary); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold;">T</div>
+                <div><b>TETA AI ✨</b><br><small class="muted">🔒 Encrypted Service</small></div>
             </div>
         </div>
     </div>
@@ -80,35 +79,45 @@
     <div id="main-chat">
         <header>
             <div id="h-av" style="width:40px; height:40px; border-radius:50%; background:white; color:var(--tg-primary); display:flex; align-items:center; justify-content:center; font-weight:bold;">T</div>
-            <div style="flex:1"><b id="h-nm">TETA AI ✨</b><br><small><i class="fas fa-lock" style="font-size: 9px;"></i> end-to-end encrypted</small></div>
-            <i class="fas fa-phone" onclick="startCall()" style="cursor:pointer; font-size:18px;"></i>
+            <div style="flex:1"><b id="h-nm">TETA AI ✨</b><br><small><i class="fas fa-lock" style="font-size: 10px;"></i> end-to-end encrypted</small></div>
+            <i class="fas fa-phone" onclick="startCall()" style="cursor:pointer; font-size: 18px;"></i>
         </header>
         <div id="chat-box"></div>
         <div class="input-bar">
             <i class="fas fa-paperclip" onclick="document.getElementById('img-send').click()" style="color:var(--muted); font-size:22px; cursor:pointer;"></i>
             <input type="file" id="img-send" style="display:none" accept="image/*" onchange="sendImage(this)">
-            <input type="text" id="msg-in" placeholder="Write a message..." style="flex:1; border:none; outline:none; font-size:16px;" onkeypress="if(event.key==='Enter') send()">
+            <input type="text" id="msg-in" placeholder="Message" style="flex:1; border:none; outline:none; font-size:16px;" onkeypress="if(event.key==='Enter') send()">
             <i class="fas fa-microphone" style="color:var(--tg-primary); font-size:22px; cursor:pointer;" onmousedown="startVoiceRecord()" onmouseup="stopVoiceRecord()"></i>
             <i class="fas fa-paper-plane" onclick="send()" style="color:var(--tg-primary); font-size:22px; cursor:pointer;"></i>
         </div>
     </div>
 
+    <div id="contacts-overlay">
+        <div style="background:var(--tg-header); color:white; padding:15px; display:flex; gap:20px; align-items:center;">
+            <i class="fas fa-arrow-left" onclick="hideContacts()" style="cursor:pointer;"></i>
+            <b>Contacts</b>
+        </div>
+        <div class="contact-item" onclick="selectChat('አቤል (Abel)', 'A'); hideContacts();">
+            <div style="width:45px; height:45px; border-radius:50%; background:#e67e22; color:white; display:flex; align-items:center; justify-content:center;">A</div>
+            <div><b>አቤል (Abel)</b><br><small class="muted">online</small></div>
+        </div>
+    </div>
+
     <div id="memories-overlay">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="padding:15px; display:flex; justify-content:space-between; align-items:center; background:#111;">
             <h2><i class="fas fa-film"></i> Your Memories</h2>
-            <i class="fas fa-times" onclick="hideMemories()" style="font-size:28px; cursor:pointer;"></i>
+            <i class="fas fa-times" onclick="hideMemories()" style="font-size:24px; cursor:pointer;"></i>
         </div>
         <div id="memory-list" class="memory-grid"></div>
     </div>
 
     <div id="auth">
-        <div style="text-align:center; width:300px; background:white; padding:40px; border-radius:20px; box-shadow:0 15px 35px rgba(0,0,0,0.1);">
+        <div style="text-align:center; width:300px; background:white; padding:40px; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.1);">
             <div class="teta-logo">T</div>
-            <h2 style="color:#333; margin-bottom:5px;">TETA BRAND</h2>
-            <p style="color:#777; font-size:14px; margin-bottom:25px;">Secure Messaging Platform</p>
-            <input id="u-n" placeholder="Username" style="width:100%; padding:14px; margin-bottom:15px; border:1px solid #ddd; border-radius:10px; outline:none; box-sizing:border-box;">
-            <input id="u-k" placeholder="Security Key" type="password" style="width:100%; padding:14px; margin-bottom:20px; border:1px solid #ddd; border-radius:10px; outline:none; box-sizing:border-box;">
-            <button onclick="login()" style="width:100%; padding:14px; background:var(--tg-primary); color:white; border:none; border-radius:10px; font-weight:bold; font-size:16px; cursor:pointer; transition:0.3s;">LOG IN</button>
+            <h2 style="color:#333;">TETA BRAND</h2>
+            <input id="u-n" placeholder="Name" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+            <input id="u-k" placeholder="Key" type="password" style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #ddd; border-radius:8px;">
+            <button onclick="login()" style="width:100%; padding:12px; background:var(--tg-primary); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">LOG IN</button>
         </div>
     </div>
 
@@ -122,12 +131,10 @@
     <script>
         const socket = io();
         let myName, mediaRecorder, audioChunks = [];
-        
-        // 🔒 Encryption (መልእክቶች እንዳይነበቡ)
         const encrypt = (t) => btoa(unescape(encodeURIComponent(t)));
         const decrypt = (t) => decodeURIComponent(escape(atob(t)));
 
-        let savedMessages = JSON.parse(localStorage.getItem('teta_v18_msgs') || '[]');
+        let savedMessages = JSON.parse(localStorage.getItem('teta_v20_msgs') || '[]');
 
         window.onload = () => {
             const savedWall = localStorage.getItem('teta_wall');
@@ -138,26 +145,20 @@
         function login() {
             const u = document.getElementById('u-n').value;
             const k = document.getElementById('u-k').value;
-            if(u && k === "OMO_SAFETY_2026_SECURE") {
-                myName = u; document.getElementById('auth').style.display='none';
-                document.getElementById('side-n').innerText = u;
-            } else { alert("Incorect Key!"); }
+            if(u && k === "OMO_SAFETY_2026_SECURE") { myName = u; document.getElementById('auth').style.display='none'; document.getElementById('side-n').innerText = u; }
+            else { alert("Security Key Error!"); }
         }
 
         function send() {
             const i = document.getElementById('msg-in');
-            if(i.value.trim()) {
-                const id = 'msg-' + Date.now();
-                socket.emit('chat_message', { id: id, user: myName, text: encrypt(i.value), type: 'text' });
-                i.value='';
-            }
+            if(i.value.trim()) { socket.emit('chat_message', { id: 'msg-'+Date.now(), user: myName, text: encrypt(i.value), type: 'text' }); i.value=''; }
         }
 
         socket.on('chat_message', d => {
             const dec = { ...d, text: d.text ? decrypt(d.text) : null };
             displayMessage(dec);
             savedMessages.push(d);
-            localStorage.setItem('teta_v18_msgs', JSON.stringify(savedMessages));
+            localStorage.setItem('teta_v20_msgs', JSON.stringify(savedMessages));
         });
 
         function displayMessage(d) {
@@ -170,52 +171,41 @@
             div.onclick = (e) => showDeleteMenu(e, d.id, isMe);
 
             let content = `<b>${d.user}</b><br>`;
-            if(d.type === 'image') content += `<img src="${d.img}" class="chat-img" style="max-width:100%; border-radius:8px;">`;
-            else if(d.type === 'audio') content += `<div onclick="new Audio('${d.audio}').play()"><i class="fas fa-play-circle" style="font-size:24px; color:var(--tg-primary);"></i> Voice Message</div>`;
+            if(d.type === 'image') content += `<img src="${d.img}" style="max-width:100%; border-radius:8px;">`;
+            else if(d.type === 'audio') content += `<div onclick="new Audio('${d.audio}').play()"><i class="fas fa-play-circle"></i> Voice Message</div>`;
             else content += d.text;
-            
-            if(isMe) content += `<span style="float:right; font-size:10px; margin-left:10px; color:#4caf50;">✓✓</span>`;
+            if(isMe) content += `<span style="float:right; font-size:10px; color:#4caf50; margin-left:10px;">✓✓</span>`;
             div.innerHTML = content;
-            box.appendChild(div);
-            box.scrollTop = box.scrollHeight;
+            box.appendChild(div); box.scrollTop = box.scrollHeight;
         }
 
-        // Sidebar & UI
+        // Logic Controls
         function openSidebar() { document.getElementById('menu-sidebar').classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
         function closeSidebar() { document.getElementById('menu-sidebar').classList.remove('active'); document.getElementById('overlay').style.display = 'none'; }
-        function hideDeleteMenu() { document.getElementById('delete-menu').style.display = 'none'; }
-
-        // Memories (Reels)
+        function showContacts() { document.getElementById('contacts-overlay').style.display = 'flex'; closeSidebar(); }
+        function hideContacts() { document.getElementById('contacts-overlay').style.display = 'none'; }
         function showMemories() {
-            const list = document.getElementById('memory-list');
-            list.innerHTML = "";
+            const list = document.getElementById('memory-list'); list.innerHTML = "";
             document.getElementById('memories-overlay').style.display = 'flex';
-            savedMessages.filter(m => m.type === 'image').forEach(m => {
-                const img = document.createElement('img'); img.src = m.img; img.className = 'memory-item'; list.appendChild(img);
-            });
+            savedMessages.filter(m => m.type === 'image').forEach(m => { const img = document.createElement('img'); img.src = m.img; img.className = 'memory-item'; list.appendChild(img); });
         }
         function hideMemories() { document.getElementById('memories-overlay').style.display = 'none'; }
 
-        // Smart Delete & Sync
         function showDeleteMenu(e, id, isMe) {
             e.stopPropagation();
-            const m = document.getElementById('delete-menu');
-            m.style.display = 'block'; m.style.left = e.clientX + 'px'; m.style.top = e.clientY + 'px';
+            const m = document.getElementById('delete-menu'); m.style.display = 'block'; m.style.left = e.clientX + 'px'; m.style.top = e.clientY + 'px';
             document.getElementById('del-me-btn').onclick = () => { document.getElementById(id).remove(); hideDeleteMenu(); };
-            const delAll = document.getElementById('del-all-btn');
-            if(isMe) {
-                delAll.style.display = 'block';
-                delAll.onclick = () => { socket.emit('delete_message', id); hideDeleteMenu(); };
-            } else { delAll.style.display = 'none'; }
+            if(isMe) { document.getElementById('del-all-btn').style.display = 'block'; document.getElementById('del-all-btn').onclick = () => { socket.emit('delete_message', id); hideDeleteMenu(); }; }
+            else { document.getElementById('del-all-btn').style.display = 'none'; }
         }
         socket.on('delete_message', id => { 
             const el = document.getElementById(id); if(el) el.remove(); 
             savedMessages = savedMessages.filter(m => m.id !== id);
-            localStorage.setItem('teta_v18_msgs', JSON.stringify(savedMessages));
+            localStorage.setItem('teta_v20_msgs', JSON.stringify(savedMessages));
         });
-
-        // Nokia Call & Audio
-        function startCall() { document.getElementById('ring').play(); alert("TETA Secure Call..."); }
+        function hideDeleteMenu() { document.getElementById('delete-menu').style.display = 'none'; }
+        function startCall() { document.getElementById('ring').play(); alert("Connecting TETA Secure Call..."); }
+        
         async function startVoiceRecord() {
             try {
                 const s = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -230,11 +220,11 @@
             } catch (err) {}
         }
         function stopVoiceRecord() { if(mediaRecorder) mediaRecorder.stop(); }
-
         function sendImage(i) { if(i.files && i.files[0]) { const r = new FileReader(); r.onload = e => socket.emit('chat_message', { id: 'img-'+Date.now(), user: myName, img: e.target.result, type: 'image' }); r.readAsDataURL(i.files[0]); } }
         function changeWallpaper(i) { if(i.files && i.files[0]) { const r = new FileReader(); r.onload = e => { document.getElementById('chat-box').style.backgroundImage = `url(${e.target.result})`; localStorage.setItem('teta_wall', e.target.result); }; r.readAsDataURL(i.files[0]); } }
-        function uploadStory(i) { if(i.files && i.files[0]) { const r = new FileReader(); r.onload = e => { const d = document.createElement('div'); d.className='st-circle'; d.innerHTML=`<img src="${e.target.result}">`; document.getElementById('story-list').prepend(d); }; r.readAsDataURL(i.files[0]); } }
-        function clearStorage() { if(confirm("Clear everything?")) { localStorage.clear(); location.reload(); } }
+        function uploadStory(i) { if(i.files && i.files[0]) { const r = new FileReader(); r.onload = e => { const d = document.createElement('div'); d.className='st-circle'; d.style.width='50px'; d.style.height='50px'; d.innerHTML=`<img src="${e.target.result}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`; document.getElementById('story-list').prepend(d); }; r.readAsDataURL(i.files[0]); } }
+        function selectChat(n, a) { document.getElementById('h-nm').innerText = n; document.getElementById('h-av').innerText = a; }
+        function clearStorage() { if(confirm("ሁሉንም ዳታ ማጥፋት ትፈልጋለህ?")) { localStorage.clear(); location.reload(); } }
     </script>
 </body>
 </html>
