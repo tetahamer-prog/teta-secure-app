@@ -1,58 +1,96 @@
 <!DOCTYPE html>
-<html>
+<html lang="am">
 <head>
-    <title>TETA SECURE CHAT</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TETA SECURE - የደቡብ ኦሞ ሰላምና ጸጥታ</title>
     <style>
-        body { font-family: sans-serif; background: #000; color: #0f0; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        #chat-container { width: 90%; max-width: 400px; border: 1px solid #0f0; padding: 20px; display: none; }
-        #login-container { text-align: center; border: 1px solid #0f0; padding: 30px; }
-        input { background: #000; color: #0f0; border: 1px solid #0f0; padding: 10px; width: 80%; margin-bottom: 10px; }
-        button { background: #0f0; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
-        #messages { list-style: none; padding: 0; height: 200px; overflow-y: auto; border-bottom: 1px solid #0f0; margin-bottom: 10px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0b141a; color: white; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        
+        /* Login Styles */
+        #auth-ui { background: #1f2c33; padding: 40px; border-radius: 15px; width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #00a884; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #2a3942; color: white; font-size: 16px; outline: none; }
+        button { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: #00a884; color: white; width: 100%; transition: 0.3s; }
+        button:hover { background: #008f6f; }
+
+        /* Main App Styles */
+        #main-app { display: none; flex-direction: column; height: 95vh; width: 100%; max-width: 500px; background: #111b21; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        header { background: #202c33; padding: 15px; text-align: center; font-weight: bold; color: #00a884; border-bottom: 1px solid #222e35; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; }
+        #chat-box { flex: 1; overflow-y: auto; padding: 20px; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-opacity: 0.05; }
+        .controls { display: flex; gap: 10px; padding: 15px; background: #202c33; align-items: center; }
+        .msg-bubble { background: #202c33; padding: 10px 15px; border-radius: 10px; margin-bottom: 10px; width: fit-content; max-width: 80%; border: 1px solid #2a3942; }
+        
+        /* Video overlay */
+        .video-container { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 5px; }
+        video { width: 120px; border-radius: 10px; border: 2px solid #00a884; background: black; }
     </style>
 </head>
 <body>
 
-    <div id="login-container">
-        <h2>🛡️ TETA SECURE</h2>
-        <input id="username" type="text" placeholder="ስምህን አስገባ...">
-        <br>
-        <button onclick="startChat()">ግባ (LOGIN)</button>
+    <div id="auth-ui">
+        <h2 style="color:#00a884;">🛡️ TETA SECURE</h2>
+        <p style="font-size: 14px; color: #aebac1;">የደቡብ ኦሞ ሰላምና ጸጥታ መገናኛ</p>
+        <div id="login-form">
+            <input id="username" placeholder="ሙሉ ስም ወይም መለያ">
+            <button onclick="startChat()">ግባ (LOGIN)</button>
+        </div>
     </div>
 
-    <div id="chat-container">
-        <h3>TETA Chat</h3>
-        <ul id="messages"></ul>
-        <input id="m" autocomplete="off" placeholder="መልዕክት ጻፍ..." /><button onclick="sendMessage()">ላክ</button>
+    <div id="main-app">
+        <header>
+            <span>🛡️ TETA HUB</span>
+            <div style="display:flex; gap:10px;">
+                <button onclick="startCall('audio')" style="width:35px; height:35px; padding:0; border-radius:50%;">📞</button>
+                <button onclick="startCall('video')" style="width:35px; height:35px; padding:0; border-radius:50%; background:#28a745;">📹</button>
+            </div>
+        </header>
+
+        <div class="video-container">
+            <video id="localVideo" autoplay muted></video>
+            <video id="remoteVideo" autoplay></video>
+        </div>
+
+        <div id="chat-box"></div>
+
+        <div class="controls">
+            <input type="file" id="fileInput" style="display:none" onchange="uploadFile()">
+            <button onclick="document.getElementById('fileInput').click()" style="width:45px; background:#3b4a54;">📁</button>
+            <input type="text" id="msgInput" placeholder="ሚስጥራዊ መልዕክት ጻፍ...">
+            <button onclick="send()" style="width:60px;">ላክ</button>
+        </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        var socket = io();
-        var user = "";
+        const socket = io();
+        let myUser;
 
         function startChat() {
-            user = document.getElementById('username').value;
-            if(user) {
-                document.getElementById('login-container').style.display = 'none';
-                document.getElementById('chat-container').style.display = 'block';
+            myUser = document.getElementById('username').value;
+            if(myUser) {
+                document.getElementById('auth-ui').style.display = 'none';
+                document.getElementById('main-app').style.display = 'flex';
+            } else { alert("እባክዎ ስም ያስገቡ!"); }
+        }
+
+        function send() {
+            const text = document.getElementById('msgInput').value;
+            if(text) {
+                socket.emit('chat_message', { user: myUser, text, type: 'text' });
+                document.getElementById('msgInput').value = '';
             }
         }
 
-        function sendMessage() {
-            var msg = document.getElementById('m').value;
-            if(msg) {
-                socket.emit('chat message', user + ": " + msg);
-                document.getElementById('m').value = '';
-            }
-        }
-
-        socket.on('chat message', function(msg){
-            var li = document.createElement('li');
-            li.textContent = msg;
-            document.getElementById('messages').appendChild(li);
+        socket.on('chat_message', d => {
+            const chatBox = document.getElementById('chat-box');
+            const div = document.createElement('div');
+            div.className = "msg-bubble";
+            div.innerHTML = `<b>${d.user}:</b> ${d.text}`;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
         });
+        
+        // ለጥሪ እና ለፋይል መላላኪያ የሚያስፈልጉ ተግባራት ወደፊት እንጨምራለን
     </script>
 </body>
 </html>
