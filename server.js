@@ -2,56 +2,46 @@ const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
-const path = require('path');
 const twilio = require('twilio');
 
-// Twilio Setup (ከ Render Variables የሚመጡ)
+// መረጃዎቹን ከ Render Environment Variables ይወስዳል
 const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
-let tempOTP = {}; // ለጊዜው ኮዶችን የምንይዝበት
+const serviceSid = process.env.VERIFY_SERVICE_SID; 
 
 app.use(express.static(__dirname));
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
 io.on('connection', (socket) => {
-  console.log('A user connected');
-
-  // 1. ሚስጥራዊ ኮድ (OTP) ወደ ስልክ ለመላክ
+  
+  // 1. ኮድ ለመላክ (Verification Start)
   socket.on('send_otp', (data) => {
-    const otp = Math.floor(100000 + Math.random() * 900000); // 6 ዲጂት ኮድ
-    tempOTP[data.phone] = otp;
-
-    client.messages.create({
-      body: `TETA SECURE: ያንተ ሚስጥራዊ መግቢያ ኮድ ${otp} ነው። ለማንም እንዳትሰጥ!`,
-      from: process.env.TWILIO_PHONE,
-      to: data.phone
-    })
-    .then(() => socket.emit('otp_sent', { success: true }))
-    .catch(err => socket.emit('otp_sent', { success: false, error: err.message }));
+    client.verify.v2.services(serviceSid)
+      .verifications
+      .create({to: data.phone, channel: 'sms'})
+      .then(verification => socket.emit('otp_sent', { success: true }))
+      .catch(err => socket.emit('otp_sent', { success: false, error: err.message }));
   });
 
-  // 2. ኮዱን በትክክል መሆኑን ለማረጋገጥ
+  // 2. የተላከውን ኮድ ለማረጋገጥ (Verification Check)
   socket.on('verify_otp', (data) => {
-    if (tempOTP[data.phone] && tempOTP[data.phone] == data.code) {
-      socket.emit('login_success', { user: data.username });
-    } else {
-      socket.emit('login_failed', { message: "የተሳሳተ ኮድ ነው!" });
-    }
+    client.verify.v2.services(serviceSid)
+      .verificationChecks
+      .create({to: data.phone, code: data.code})
+      .then(verification_check => {
+        if (verification_check.status === 'approved') {
+          socket.emit('login_success', { user: data.username });
+        } else {
+          socket.emit('login_failed', { message: "የተሳሳተ ኮድ ነው!" });
+        }
+      })
+      .catch(err => socket.emit('login_failed', { message: err.message }));
   });
 
-  // 3. መልዕክት መላላኪያ
   socket.on('chat_message', (msg) => {
     io.emit('chat_message', msg);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
   });
 });
 
 const PORT = process.env.PORT || 10000;
 http.listen(PORT, () => {
-  console.log(`TETA Server running on port ${PORT}`);
+  console.log(`TETA SECURE running with Twilio Verify`);
 });
