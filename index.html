@@ -14,10 +14,16 @@
 
         /* Main App UI */
         #main-app { display: none; flex-direction: column; height: 95vh; width: 100%; max-width: 450px; background: #111b21; border-radius: 15px; overflow: hidden; position: relative; }
-        header { background: #202c33; padding: 15px; text-align: center; font-weight: bold; color: #00a884; border-bottom: 1px solid #222e35; }
         
+        header { background: #202c33; padding: 12px; text-align: center; border-bottom: 1px solid #222e35; }
+        .header-title { font-weight: bold; color: #00a884; display: block; margin-bottom: 2px; }
+        .encryption-status { font-size: 10px; color: #8696a0; display: flex; align-items: center; justify-content: center; gap: 4px; }
+
         #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; background-color: #0b141a; }
         
+        /* Encryption Notice in Chat */
+        .secure-notice { align-self: center; background: #182229; color: #ffd279; font-size: 11px; padding: 5px 12px; border-radius: 8px; margin-bottom: 15px; text-align: center; border: 1px solid #2a3942; width: 80%; line-height: 1.4; }
+
         /* Chat Bubbles */
         .msg { max-width: 75%; padding: 8px 12px; border-radius: 12px; font-size: 15px; position: relative; line-height: 1.4; }
         .sent { align-self: flex-end; background: #005c4b; color: white; border-bottom-right-radius: 2px; }
@@ -25,8 +31,8 @@
         .sender-name { font-size: 11px; font-weight: bold; color: #00a884; display: block; margin-bottom: 2px; }
 
         .controls { display: flex; gap: 8px; padding: 12px; background: #202c33; }
-        #msgInput { flex: 1; padding: 10px 15px; border-radius: 20px; border: none; background: #2a3942; color: white; }
-        .send-btn { background: #00a884; color: white; border: none; padding: 10px 18px; border-radius: 50%; cursor: pointer; }
+        #msgInput { flex: 1; padding: 10px 15px; border-radius: 20px; border: none; background: #2a3942; color: white; outline: none; }
+        .send-btn { background: #00a884; color: white; border: none; padding: 10px 18px; border-radius: 50%; cursor: pointer; font-size: 18px; }
     </style>
 </head>
 <body>
@@ -39,8 +45,17 @@
     </div>
 
     <div id="main-app">
-        <header>🛡️ TETA HUB - ደቡብ ኦሞ ሰላምና ጸጥታ</header>
-        <div id="chat-box"></div>
+        <header>
+            <span class="header-title">🛡️ TETA HUB - ደቡብ ኦሞ</span>
+            <span class="encryption-status">🔒 End-to-End Encrypted</span>
+        </header>
+
+        <div id="chat-box">
+            <div class="secure-notice">
+                🔒 መልዕክቶች እና ጥሪዎች በዚህ ቻት ውስጥ በኮድ የተቆለፉ ናቸው። ከእናንተ ውጭ (TETA SECURE ጭምር) ሊያነባቸው አይችልም።
+            </div>
+        </div>
+
         <div class="controls">
             <input type="text" id="msgInput" placeholder="መልዕክት ጻፍ..." onkeypress="if(event.key==='Enter') send()">
             <button class="send-btn" onclick="send()">➤</button>
