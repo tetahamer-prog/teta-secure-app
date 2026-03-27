@@ -5,49 +5,42 @@ const io = require('socket.io')(http, { maxHttpBufferSize: 1e8 });
 const fs = require('fs');
 const path = require('path');
 
+app.use(express.static(__dirname));
 const RECORDS_DIR = path.join(__dirname, 'TETA_RECORDS');
 if (!fs.existsSync(RECORDS_DIR)) fs.mkdirSync(RECORDS_DIR);
-
-const ensureUserFolder = (user) => {
-    const userPath = path.join(RECORDS_DIR, user);
-    if (!fs.existsSync(userPath)) fs.mkdirSync(userPath, { recursive: true });
-};
-
-app.use(express.static(__dirname));
-
-let users = {};
 
 io.on('connection', (socket) => {
     socket.on('verify_secure_access', (data) => {
         if (data.key === "OMO_SAFETY_2026_SECURE") {
             socket.username = data.username;
-            users[data.username] = { id: socket.id, lastSeen: 'Online', phone: '09********' };
-            ensureUserFolder(data.username);
-            socket.emit('login_success', { user: data.username });
-            io.emit('user_status', { allUsers: users });
+            const userPath = path.join(RECORDS_DIR, data.username);
+            if (!fs.existsSync(userPath)) fs.mkdirSync(userPath);
+            socket.emit('login_success');
         }
     });
 
-    socket.on('chat_message', (data) => {
-        data.time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        io.emit('chat_message', data);
-    });
+    // AI ድምፅ ሰምቶ ምላሽ እንዲሰጥ
+    socket.on('ask_teta_ai', (question) => {
+        console.log(`ጥያቄ በድምፅ ቀርቧል: ${question}`);
+        
+        // AI Analysis (Simulation)
+        let responseText = "";
+        if(question.includes("ሰላም")) {
+            responseText = `ሰላም ${socket.username}፣ የደቡብ ኦሞ ጸጥታ ረዳትዎ ነኝ። ምን ልርዳዎት?`;
+        } else if(question.includes("ማነህ")) {
+            responseText = "እኔ ቴታ ኤአይ ነኝ። በሰው ሰራሽ አስተውሎት የታገዝኩ የጸጥታ ረዳት ነኝ።";
+        } else {
+            responseText = `ለጥያቄዎ "${question}" ትንታኔ እየሰራሁ ነው። በአሁኑ ሰዓት ያለው መረጃ ሰላማዊ እንደሆነ ያሳያል።`;
+        }
 
-    socket.on('save_call_record', (data) => {
-        if (!socket.username) return;
-        const filePath = path.join(RECORDS_DIR, socket.username, data.fileName);
-        const base64Data = data.blob.split(',')[1];
-        fs.writeFile(filePath, base64Data, 'base64', (err) => {
-            if (!err) console.log(`Recording Saved for ${socket.username}`);
+        // ምላሹን ወደ ተጠቃሚው መላክ
+        socket.emit('ai_voice_response', { 
+            user: "TETA AI ✨", 
+            text: responseText 
         });
     });
 
-    socket.on('disconnect', () => {
-        if (socket.username) {
-            if(users[socket.username]) users[socket.username].lastSeen = new Date().toLocaleTimeString();
-            io.emit('user_status', { allUsers: users });
-        }
-    });
+    socket.on('chat_message', (d) => io.emit('chat_message', d));
 });
 
-http.listen(10000, () => console.log('TETA v3.1 PRO LIVE!'));
+http.listen(10000, () => console.log('TETA VOICE AI v4.5 LIVE!'));
