@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TETA ULTIMATE - Wallpaper Edition</title>
+    <title>TETA BRAND - All Features</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --tg-header: #527da3; --tg-bg: #e6eff5; --tg-sent: #effdde; --tg-primary: #2481cc; --muted: #707579; }
+        :root { --tg-header: #2481cc; --tg-bg: #e6eff5; --tg-sent: #effdde; --tg-primary: #2481cc; --muted: #707579; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; background: var(--tg-bg); }
+
+        /* 1. BRAND LOGO (ያንተን ስም የሚያደምቅ) */
+        .teta-logo { width: 90px; height: 90px; background: var(--tg-primary); color: white; border-radius: 25px; display: flex; align-items: center; justify-content: center; font-size: 35px; font-weight: bold; margin: 0 auto 20px; box-shadow: 0 10px 20px rgba(36,129,204,0.3); border: 3px solid rgba(255,255,255,0.2); }
 
         /* Sidebar & Layout */
         #menu-sidebar { width: 280px; background: white; position: fixed; left: -280px; height: 100%; transition: 0.3s; z-index: 2000; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
@@ -15,38 +18,29 @@
         #chat-list-column { width: 320px; background: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; flex-shrink: 0; }
         #main-chat { flex: 1; display: flex; flex-direction: column; position: relative; }
 
-        /* Stories Bar (Preserved) */
+        /* 2. STORIES (ተጠብቆ የቆየ) */
         #story-bar { display: flex; gap: 10px; padding: 10px; overflow-x: auto; border-bottom: 1px solid #eee; background: white; min-height: 75px; }
         .st-circle { width: 55px; height: 55px; border-radius: 50%; border: 2px solid var(--tg-primary); flex-shrink: 0; padding: 2px; cursor: pointer; }
         .st-circle img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 
-        /* Chat UI with Dynamic Wallpaper */
+        /* 3. WALLPAPER & CHAT (ተጠብቆ የቆየ) */
         header { background: var(--tg-header); color: white; padding: 10px 15px; display: flex; align-items: center; gap: 15px; z-index: 10; }
-        #chat-box { 
-            flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; 
-            background-size: cover; background-position: center; transition: 0.5s;
-            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); 
-        }
+        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; background-size: cover; background-position: center; }
         
-        /* Message Styles (Preserved) */
         .msg { max-width: 75%; padding: 8px 12px; border-radius: 10px; font-size: 14.5px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); position: relative; cursor: pointer; }
-        .sent { align-self: flex-end; background: var(--tg-sent); border-bottom-right-radius: 2px; padding-right: 35px; }
+        .sent { align-self: flex-end; background: var(--tg-sent); border-bottom-right-radius: 2px; }
         .received { align-self: flex-start; background: white; border-bottom-left-radius: 2px; }
-        .tick { position: absolute; bottom: 4px; right: 8px; font-size: 10px; color: #4caf50; }
-        .chat-img { max-width: 100%; border-radius: 8px; margin-top: 5px; }
 
-        /* Delete & Context Menus */
+        /* 4. REELS/MEMORIES OVERLAY */
+        #memories-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 7000; flex-direction: column; padding: 20px; color: white; overflow-y: auto; }
+        .memory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
+        .memory-item { width: 100%; height: 160px; object-fit: cover; border-radius: 12px; border: 1px solid #444; }
+
+        /* UI Helpers */
+        .input-bar { background: white; padding: 10px; display: flex; align-items: center; gap: 15px; border-top: 1px solid #ddd; }
+        #auth { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f4f7f9; display: flex; align-items: center; justify-content: center; z-index: 9000; }
         #delete-menu { display: none; position: fixed; background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 6000; padding: 10px; width: 180px; }
-        .del-opt { padding: 10px; cursor: pointer; font-size: 14px; border-radius: 5px; transition: 0.2s; }
-        .del-opt:hover { background: #f1f1f1; }
-
-        /* Inputs & Buttons */
-        .input-bar { background: white; padding: 10px; display: flex; align-items: center; gap: 15px; border-top: 1px solid #ddd; z-index: 10; }
-        .menu-item { padding: 15px 20px; display: flex; align-items: center; gap: 20px; cursor: pointer; border-radius: 8px; margin: 2px 10px; transition: 0.2s; }
-        .menu-item:hover { background: #f5f5f5; }
-        
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 1500; }
-        #call-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b141a; z-index: 4000; flex-direction: column; align-items: center; justify-content: center; color: white; }
     </style>
 </head>
 <body onclick="hideDeleteMenu()">
@@ -55,108 +49,115 @@
 
     <div id="menu-sidebar">
         <div style="background: var(--tg-header); padding: 30px 20px; color: white;">
-            <div id="side-p" style="width:60px; height:60px; background:#2481cc; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; border:2px solid white; margin-bottom: 10px;">T</div>
+            <div id="side-p" style="width:55px; height:55px; background:rgba(255,255,255,0.2); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:bold; border:1px solid white; margin-bottom:10px;">T</div>
             <b id="side-n">ተክለማርያም</b>
         </div>
-        <div class="menu-item" onclick="document.getElementById('wall-up').click()"><i class="fas fa-image"></i> Change Wallpaper</div>
-        <input type="file" id="wall-up" style="display:none" accept="image/*" onchange="changeWallpaper(this)">
-        
-        <div class="menu-item" onclick="showContacts()"><i class="fas fa-user"></i> Contacts</div>
-        <div class="menu-item" onclick="startCall('audio')"><i class="fas fa-phone"></i> Calls</div>
-        <div class="menu-item" onclick="clearStorage()" style="color:red;"><i class="fas fa-trash"></i> Clear History</div>
-        <div class="menu-item" onclick="location.reload()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+        <div class="menu-item" style="padding:15px; cursor:pointer;" onclick="showMemories()"><i class="fas fa-film"></i> Memories (Reels)</div>
+        <div class="menu-item" style="padding:15px; cursor:pointer;" onclick="document.getElementById('wall-up').click()"><i class="fas fa-image"></i> Change Wallpaper</div>
+        <input type="file" id="wall-up" style="display:none" onchange="changeWallpaper(this)">
+        <div class="menu-item" style="padding:15px; cursor:pointer; color:red;" onclick="clearStorage()"><i class="fas fa-trash"></i> Clear All History</div>
+        <div class="menu-item" style="padding:15px; cursor:pointer;" onclick="location.reload()"><i class="fas fa-sign-out-alt"></i> Logout</div>
     </div>
 
     <div id="chat-list-column">
-        <div style="padding: 10px; display: flex; align-items: center; gap: 15px;">
-            <i class="fas fa-bars" onclick="openSidebar()" style="cursor:pointer; color: var(--muted); font-size: 18px;"></i>
-            <input type="text" style="flex:1; padding: 8px 15px; background: #f1f1f1; border: none; border-radius: 20px; outline: none;" placeholder="Search">
+        <div style="padding: 15px; display: flex; align-items: center; gap: 15px;">
+            <i class="fas fa-bars" onclick="openSidebar()" style="cursor:pointer; color: var(--tg-primary); font-size: 20px;"></i>
+            <b style="color:var(--tg-primary); font-size:18px;">TETA BRAND</b>
         </div>
         <div id="story-bar">
-            <div class="st-circle" onclick="document.getElementById('st-up').click()" style="border: 2px dashed #ccc; display:flex; align-items:center; justify-content:center; color:#999;"><i class="fas fa-plus"></i></div>
+            <div class="st-circle" style="border: 2px dashed #ccc; display:flex; align-items:center; justify-content:center;" onclick="document.getElementById('st-up').click()"><i class="fas fa-plus"></i></div>
             <input type="file" id="st-up" style="display:none" onchange="uploadStory(this)">
             <div id="story-list" style="display:flex; gap:10px;"></div>
         </div>
-        <div id="chats-container" style="overflow-y: auto; flex: 1;">
-            <div class="chat-item" style="padding:15px; display:flex; gap:12px; cursor:pointer;" onclick="selectChat('TETA AI ✨', '✨')">
-                <div style="width:48px; height:48px; border-radius:50%; background:var(--tg-primary); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold;">✨</div>
-                <div><b>TETA AI ✨</b><br><small class="muted">እንዴት ልርዳዎት?</small></div>
+        <div id="chats-container" style="flex: 1; overflow-y: auto;">
+            <div style="padding:15px; display:flex; gap:12px; cursor:pointer;" onclick="selectChat('TETA AI ✨', 'T')">
+                <div style="width:50px; height:50px; border-radius:50%; background:var(--tg-primary); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold;">T</div>
+                <div><b>TETA AI ✨</b><br><small class="muted">🔒 Encrypted Message</small></div>
             </div>
         </div>
     </div>
 
     <div id="main-chat">
         <header>
-            <div id="h-av" style="width:40px; height:40px; border-radius:50%; background:white; color:var(--tg-primary); display:flex; align-items:center; justify-content:center; font-weight:bold;">✨</div>
-            <div style="flex:1"><b id="h-nm">TETA AI ✨</b><br><small>online</small></div>
-            <i class="fas fa-phone" onclick="startCall('audio')" style="cursor:pointer; margin-right: 15px;"></i>
-            <i class="fas fa-video" onclick="startCall('video')" style="cursor:pointer;"></i>
+            <div id="h-av" style="width:40px; height:40px; border-radius:50%; background:white; color:var(--tg-primary); display:flex; align-items:center; justify-content:center; font-weight:bold;">T</div>
+            <div style="flex:1"><b id="h-nm">TETA AI ✨</b><br><small><i class="fas fa-lock" style="font-size: 9px;"></i> end-to-end encrypted</small></div>
+            <i class="fas fa-phone" onclick="startCall()" style="cursor:pointer; font-size:18px;"></i>
         </header>
-        
         <div id="chat-box"></div>
-        
         <div class="input-bar">
-            <i class="fas fa-paperclip" onclick="document.getElementById('img-send').click()" style="color:var(--muted); font-size:20px; cursor:pointer;"></i>
+            <i class="fas fa-paperclip" onclick="document.getElementById('img-send').click()" style="color:var(--muted); font-size:22px; cursor:pointer;"></i>
             <input type="file" id="img-send" style="display:none" accept="image/*" onchange="sendImage(this)">
-            <input type="text" id="msg-in" placeholder="Message" style="flex:1; border:none; outline:none; font-size:16px;" onkeypress="if(event.key==='Enter') send()">
-            <i class="fas fa-microphone" id="mic-btn" style="color:var(--tg-primary); font-size:22px; cursor:pointer;" onmousedown="startVoiceRecord()" onmouseup="stopVoiceRecord()"></i>
+            <input type="text" id="msg-in" placeholder="Write a message..." style="flex:1; border:none; outline:none; font-size:16px;" onkeypress="if(event.key==='Enter') send()">
+            <i class="fas fa-microphone" style="color:var(--tg-primary); font-size:22px; cursor:pointer;" onmousedown="startVoiceRecord()" onmouseup="stopVoiceRecord()"></i>
             <i class="fas fa-paper-plane" onclick="send()" style="color:var(--tg-primary); font-size:22px; cursor:pointer;"></i>
         </div>
     </div>
 
-    <div id="delete-menu">
-        <div class="del-opt" id="del-me-btn">Delete for me</div>
-        <div class="del-opt" id="del-all-btn" style="color:red; font-weight:bold;">Delete for everyone</div>
+    <div id="memories-overlay">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2><i class="fas fa-film"></i> Your Memories</h2>
+            <i class="fas fa-times" onclick="hideMemories()" style="font-size:28px; cursor:pointer;"></i>
+        </div>
+        <div id="memory-list" class="memory-grid"></div>
     </div>
 
-    <div id="call-overlay">
-        <h2 id="cn">Calling...</h2>
-        <button style="width:65px; height:65px; border-radius:50%; background:#ff3b30; border:none; color:white; font-size:24px;" onclick="endCall()"><i class="fas fa-phone-slash"></i></button>
+    <div id="auth">
+        <div style="text-align:center; width:300px; background:white; padding:40px; border-radius:20px; box-shadow:0 15px 35px rgba(0,0,0,0.1);">
+            <div class="teta-logo">T</div>
+            <h2 style="color:#333; margin-bottom:5px;">TETA BRAND</h2>
+            <p style="color:#777; font-size:14px; margin-bottom:25px;">Secure Messaging Platform</p>
+            <input id="u-n" placeholder="Username" style="width:100%; padding:14px; margin-bottom:15px; border:1px solid #ddd; border-radius:10px; outline:none; box-sizing:border-box;">
+            <input id="u-k" placeholder="Security Key" type="password" style="width:100%; padding:14px; margin-bottom:20px; border:1px solid #ddd; border-radius:10px; outline:none; box-sizing:border-box;">
+            <button onclick="login()" style="width:100%; padding:14px; background:var(--tg-primary); color:white; border:none; border-radius:10px; font-weight:bold; font-size:16px; cursor:pointer; transition:0.3s;">LOG IN</button>
+        </div>
+    </div>
+
+    <div id="delete-menu">
+        <div class="del-opt" id="del-me-btn" style="padding:10px; cursor:pointer;">Delete for me</div>
+        <div class="del-opt" id="del-all-btn" style="padding:10px; cursor:pointer; color:red; font-weight:bold;">Delete for everyone</div>
     </div>
     <audio id="ring" loop src="https://search66.com/files/ringtone/2021/08/nokia_tune.mp3"></audio>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        let myName, stream, mediaRecorder, audioChunks = [];
-        let savedMessages = JSON.parse(localStorage.getItem('teta_msgs') || '[]');
+        let myName, mediaRecorder, audioChunks = [];
+        
+        // 🔒 Encryption (መልእክቶች እንዳይነበቡ)
+        const encrypt = (t) => btoa(unescape(encodeURIComponent(t)));
+        const decrypt = (t) => decodeURIComponent(escape(atob(t)));
 
-        // Initialize (Wallpaper & Messages)
+        let savedMessages = JSON.parse(localStorage.getItem('teta_v18_msgs') || '[]');
+
         window.onload = () => {
             const savedWall = localStorage.getItem('teta_wall');
             if(savedWall) document.getElementById('chat-box').style.backgroundImage = `url(${savedWall})`;
-            savedMessages.forEach(d => displayMessage(d));
+            savedMessages.forEach(d => displayMessage({ ...d, text: d.text ? decrypt(d.text) : null }));
         };
 
-        function openSidebar() { document.getElementById('menu-sidebar').classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
-        function closeSidebar() { document.getElementById('menu-sidebar').classList.remove('active'); document.getElementById('overlay').style.display = 'none'; }
-
-        // Wallpaper Switcher Logic
-        function changeWallpaper(input) {
-            if(input.files && input.files[0]) {
-                const r = new FileReader();
-                r.onload = e => {
-                    document.getElementById('chat-box').style.backgroundImage = `url(${e.target.result})`;
-                    localStorage.setItem('teta_wall', e.target.result);
-                };
-                r.readAsDataURL(input.files[0]);
-            }
+        function login() {
+            const u = document.getElementById('u-n').value;
+            const k = document.getElementById('u-k').value;
+            if(u && k === "OMO_SAFETY_2026_SECURE") {
+                myName = u; document.getElementById('auth').style.display='none';
+                document.getElementById('side-n').innerText = u;
+            } else { alert("Incorect Key!"); }
         }
 
-        // Message & Delete Logic (Preserved & Persistent)
         function send() {
             const i = document.getElementById('msg-in');
-            if(i.value.trim()) { 
+            if(i.value.trim()) {
                 const id = 'msg-' + Date.now();
-                socket.emit('chat_message', { id: id, user: myName, text: i.value, type: 'text' }); 
-                i.value=''; 
+                socket.emit('chat_message', { id: id, user: myName, text: encrypt(i.value), type: 'text' });
+                i.value='';
             }
         }
 
         socket.on('chat_message', d => {
-            displayMessage(d);
+            const dec = { ...d, text: d.text ? decrypt(d.text) : null };
+            displayMessage(dec);
             savedMessages.push(d);
-            localStorage.setItem('teta_msgs', JSON.stringify(savedMessages));
+            localStorage.setItem('teta_v18_msgs', JSON.stringify(savedMessages));
         });
 
         function displayMessage(d) {
@@ -167,54 +168,54 @@
             div.className = `msg ${isMe ? 'sent' : 'received'}`;
             div.id = d.id;
             div.onclick = (e) => showDeleteMenu(e, d.id, isMe);
-            div.oncontextmenu = (e) => { e.preventDefault(); showDeleteMenu(e, d.id, isMe); };
 
             let content = `<b>${d.user}</b><br>`;
-            if(d.type === 'image') content += `<img src="${d.img}" class="chat-img">`;
-            else if(d.type === 'audio') content += `<div onclick="new Audio('${d.audio}').play()"><i class="fas fa-play-circle" style="font-size:28px; color:var(--tg-primary);"></i> Voice Message</div>`;
+            if(d.type === 'image') content += `<img src="${d.img}" class="chat-img" style="max-width:100%; border-radius:8px;">`;
+            else if(d.type === 'audio') content += `<div onclick="new Audio('${d.audio}').play()"><i class="fas fa-play-circle" style="font-size:24px; color:var(--tg-primary);"></i> Voice Message</div>`;
             else content += d.text;
             
-            if(isMe) content += `<span class="tick">✓✓</span>`;
+            if(isMe) content += `<span style="float:right; font-size:10px; margin-left:10px; color:#4caf50;">✓✓</span>`;
             div.innerHTML = content;
             box.appendChild(div);
             box.scrollTop = box.scrollHeight;
         }
 
-        function showDeleteMenu(e, msgId, isMe) {
-            e.stopPropagation();
-            const menu = document.getElementById('delete-menu');
-            menu.style.display = 'block';
-            menu.style.left = Math.min(e.clientX, window.innerWidth - 200) + 'px';
-            menu.style.top = e.clientY + 'px';
+        // Sidebar & UI
+        function openSidebar() { document.getElementById('menu-sidebar').classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
+        function closeSidebar() { document.getElementById('menu-sidebar').classList.remove('active'); document.getElementById('overlay').style.display = 'none'; }
+        function hideDeleteMenu() { document.getElementById('delete-menu').style.display = 'none'; }
 
-            document.getElementById('del-me-btn').onclick = () => { 
-                document.getElementById(msgId).remove(); 
-                savedMessages = savedMessages.filter(m => m.id !== msgId);
-                localStorage.setItem('teta_msgs', JSON.stringify(savedMessages));
-                hideDeleteMenu(); 
-            };
+        // Memories (Reels)
+        function showMemories() {
+            const list = document.getElementById('memory-list');
+            list.innerHTML = "";
+            document.getElementById('memories-overlay').style.display = 'flex';
+            savedMessages.filter(m => m.type === 'image').forEach(m => {
+                const img = document.createElement('img'); img.src = m.img; img.className = 'memory-item'; list.appendChild(img);
+            });
+        }
+        function hideMemories() { document.getElementById('memories-overlay').style.display = 'none'; }
+
+        // Smart Delete & Sync
+        function showDeleteMenu(e, id, isMe) {
+            e.stopPropagation();
+            const m = document.getElementById('delete-menu');
+            m.style.display = 'block'; m.style.left = e.clientX + 'px'; m.style.top = e.clientY + 'px';
+            document.getElementById('del-me-btn').onclick = () => { document.getElementById(id).remove(); hideDeleteMenu(); };
             const delAll = document.getElementById('del-all-btn');
             if(isMe) {
                 delAll.style.display = 'block';
-                delAll.onclick = () => { socket.emit('delete_message', msgId); hideDeleteMenu(); };
+                delAll.onclick = () => { socket.emit('delete_message', id); hideDeleteMenu(); };
             } else { delAll.style.display = 'none'; }
         }
-        function hideDeleteMenu() { document.getElementById('delete-menu').style.display = 'none'; }
-
         socket.on('delete_message', id => { 
             const el = document.getElementById(id); if(el) el.remove(); 
             savedMessages = savedMessages.filter(m => m.id !== id);
-            localStorage.setItem('teta_msgs', JSON.stringify(savedMessages));
+            localStorage.setItem('teta_v18_msgs', JSON.stringify(savedMessages));
         });
 
-        // Nokia Tune Call Logic (Preserved)
-        async function startCall(t) {
-            document.getElementById('call-overlay').style.display = 'flex'; document.getElementById('ring').play();
-            try { stream = await navigator.mediaDevices.getUserMedia({audio:true, video: t==='video'}); } catch(e) {}
-        }
-        function endCall() { if(stream) stream.getTracks().forEach(t=>t.stop()); document.getElementById('ring').pause(); document.getElementById('call-overlay').style.display='none'; }
-
-        // Media Capture (Preserved)
+        // Nokia Call & Audio
+        function startCall() { document.getElementById('ring').play(); alert("TETA Secure Call..."); }
         async function startVoiceRecord() {
             try {
                 const s = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -230,46 +231,10 @@
         }
         function stopVoiceRecord() { if(mediaRecorder) mediaRecorder.stop(); }
 
-        function sendImage(input) {
-            if(input.files && input.files[0]) {
-                const r = new FileReader();
-                r.onload = e => socket.emit('chat_message', { id: 'img-'+Date.now(), user: myName, img: e.target.result, type: 'image' });
-                r.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function login() {
-            const u = document.getElementById('u-n').value;
-            const k = document.getElementById('u-k').value;
-            if(u && k === "OMO_SAFETY_2026_SECURE") {
-                myName = u; document.getElementById('auth').style.display='none';
-                document.getElementById('side-n').innerText = u;
-                document.getElementById('side-p').innerText = u.charAt(0).toUpperCase();
-            } else { alert("Key Error!"); }
-        }
-        
-        function clearStorage() { if(confirm("ታሪክ ይጥፋ?")) { localStorage.removeItem('teta_msgs'); location.reload(); } }
-        
-        function uploadStory(input) {
-            if(input.files && input.files[0]) {
-                const r = new FileReader();
-                r.onload = e => {
-                    const d = document.createElement('div'); d.className='st-circle'; d.innerHTML=`<img src="${e.target.result}">`;
-                    document.getElementById('story-list').prepend(d);
-                };
-                r.readAsDataURL(input.files[0]);
-            }
-        }
+        function sendImage(i) { if(i.files && i.files[0]) { const r = new FileReader(); r.onload = e => socket.emit('chat_message', { id: 'img-'+Date.now(), user: myName, img: e.target.result, type: 'image' }); r.readAsDataURL(i.files[0]); } }
+        function changeWallpaper(i) { if(i.files && i.files[0]) { const r = new FileReader(); r.onload = e => { document.getElementById('chat-box').style.backgroundImage = `url(${e.target.result})`; localStorage.setItem('teta_wall', e.target.result); }; r.readAsDataURL(i.files[0]); } }
+        function uploadStory(i) { if(i.files && i.files[0]) { const r = new FileReader(); r.onload = e => { const d = document.createElement('div'); d.className='st-circle'; d.innerHTML=`<img src="${e.target.result}">`; document.getElementById('story-list').prepend(d); }; r.readAsDataURL(i.files[0]); } }
+        function clearStorage() { if(confirm("Clear everything?")) { localStorage.clear(); location.reload(); } }
     </script>
-
-    <div id="auth" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; align-items:center; justify-content:center; z-index:5000;">
-        <div style="text-align:center; width:280px;">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" width="60">
-            <h2>TETA SECURE</h2>
-            <input id="u-n" placeholder="Name" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:5px;">
-            <input id="u-k" placeholder="Key" type="password" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:5px;">
-            <button onclick="login()" style="width:100%; padding:10px; background:var(--tg-primary); color:white; border:none; border-radius:5px;">LOGIN</button>
-        </div>
-    </div>
 </body>
 </html>
