@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TETA ULTIMATE - Voice & Media</title>
+    <title>TETA ULTIMATE - Smart Delete Edition</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --tg-header: #527da3; --tg-bg: #e6eff5; --tg-sent: #effdde; --tg-primary: #2481cc; --muted: #707579; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; background: var(--tg-bg); }
 
-        /* Sidebar & Columns */
+        /* Sidebar & Layout */
         #menu-sidebar { width: 280px; background: white; position: fixed; left: -280px; height: 100%; transition: 0.3s; z-index: 2000; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
         #menu-sidebar.active { left: 0; }
         #chat-list-column { width: 320px; background: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; flex-shrink: 0; }
@@ -20,47 +20,44 @@
         .st-circle { width: 55px; height: 55px; border-radius: 50%; border: 2px solid var(--tg-primary); flex-shrink: 0; padding: 2px; cursor: pointer; }
         .st-circle img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 
-        /* Header & Chat Box */
+        /* Chat UI */
         header { background: var(--tg-header); color: white; padding: 10px 15px; display: flex; align-items: center; gap: 15px; }
         #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
         
-        /* Message Styles */
-        .msg { max-width: 75%; padding: 8px 12px; border-radius: 10px; font-size: 14.5px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); position: relative; word-wrap: break-word; }
+        .msg { max-width: 75%; padding: 8px 12px; border-radius: 10px; font-size: 14.5px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); position: relative; cursor: pointer; }
         .sent { align-self: flex-end; background: var(--tg-sent); border-bottom-right-radius: 2px; padding-right: 35px; }
         .received { align-self: flex-start; background: white; border-bottom-left-radius: 2px; }
         .tick { position: absolute; bottom: 4px; right: 8px; font-size: 10px; color: #4caf50; }
         .chat-img { max-width: 100%; border-radius: 8px; margin-top: 5px; }
-        
-        /* Voice Player Style */
-        .voice-msg { display: flex; align-items: center; gap: 10px; min-width: 150px; }
-        .voice-play-btn { width: 35px; height: 35px; border-radius: 50%; background: var(--tg-primary); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; }
 
-        /* Overlays & Inputs */
+        /* Smart Delete Menu Popup */
+        #delete-menu { display: none; position: fixed; background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 6000; padding: 10px; width: 180px; }
+        .del-opt { padding: 10px; cursor: pointer; font-size: 14px; border-radius: 5px; transition: 0.2s; }
+        .del-opt:hover { background: #f1f1f1; }
+        .del-red { color: #ff3b30; font-weight: bold; }
+
+        /* Inputs & Overlays */
         .input-bar { background: white; padding: 10px; display: flex; align-items: center; gap: 15px; border-top: 1px solid #ddd; }
-        .mic-active { color: #f44336 !important; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-
         #contacts-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 3000; flex-direction: column; }
         #call-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b141a; z-index: 4000; flex-direction: column; align-items: center; justify-content: center; color: white; }
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 1500; }
+        .menu-item { padding: 15px 20px; display: flex; align-items: center; gap: 20px; cursor: pointer; }
         .chat-item { padding: 12px 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-bottom: 1px solid #f9f9f9; }
     </style>
 </head>
-<body>
+<body onclick="hideDeleteMenu()">
 
     <div id="overlay" onclick="closeSidebar()"></div>
 
     <div id="menu-sidebar">
         <div style="background: var(--tg-header); padding: 30px 20px; color: white;">
             <div id="side-p" style="width:60px; height:60px; background:#2481cc; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; border:2px solid white;">T</div>
-            <b id="side-n">User</b>
+            <b id="side-n">ተክለማርያም</b>
         </div>
-        <div style="padding: 10px 0;">
-            <div class="menu-item" style="padding:15px 20px; display:flex; gap:20px; cursor:pointer;" onclick="showContacts()"><i class="fas fa-user" style="color:var(--muted)"></i> Contacts</div>
-            <div class="menu-item" style="padding:15px 20px; display:flex; gap:20px; cursor:pointer;" onclick="startCall('audio')"><i class="fas fa-phone" style="color:var(--muted)"></i> Calls</div>
-            <div class="menu-item" style="padding:15px 20px; display:flex; gap:20px; cursor:pointer;"><i class="fas fa-bookmark" style="color:var(--muted)"></i> Saved Messages</div>
-            <div class="menu-item" style="padding:15px 20px; display:flex; gap:20px; cursor:pointer; color:red;" onclick="location.reload()"><i class="fas fa-sign-out-alt"></i> Logout</div>
-        </div>
+        <div class="menu-item" onclick="showContacts()"><i class="fas fa-user"></i> Contacts</div>
+        <div class="menu-item" onclick="startCall('audio')"><i class="fas fa-phone"></i> Calls</div>
+        <div class="menu-item"><i class="fas fa-bookmark"></i> Saved Messages</div>
+        <div class="menu-item" onclick="location.reload()" style="color:red;"><i class="fas fa-sign-out-alt"></i> Logout</div>
     </div>
 
     <div id="chat-list-column">
@@ -88,19 +85,19 @@
             <i class="fas fa-phone" onclick="startCall('audio')" style="cursor:pointer; margin-right: 15px;"></i>
             <i class="fas fa-video" onclick="startCall('video')" style="cursor:pointer;"></i>
         </header>
-
         <div id="chat-box"></div>
-        
         <div class="input-bar">
             <i class="fas fa-paperclip" onclick="document.getElementById('img-send').click()" style="color:var(--muted); font-size:20px; cursor:pointer;"></i>
             <input type="file" id="img-send" style="display:none" accept="image/*" onchange="sendImage(this)">
             <input type="text" id="msg-in" placeholder="Message" style="flex:1; border:none; outline:none; font-size:16px;" onkeypress="if(event.key==='Enter') send()">
-            
-            <i class="fas fa-microphone" id="mic-btn" style="color:var(--tg-primary); font-size:22px; cursor:pointer;" 
-               onmousedown="startVoiceRecord()" onmouseup="stopVoiceRecord()" ontouchstart="startVoiceRecord()" ontouchend="stopVoiceRecord()"></i>
-            
+            <i class="fas fa-microphone" id="mic-btn" style="color:var(--tg-primary); font-size:22px; cursor:pointer;" onmousedown="startVoiceRecord()" onmouseup="stopVoiceRecord()"></i>
             <i class="fas fa-paper-plane" onclick="send()" style="color:var(--tg-primary); font-size:22px; cursor:pointer;"></i>
         </div>
+    </div>
+
+    <div id="delete-menu">
+        <div class="del-opt" id="del-me-btn">Delete for me</div>
+        <div class="del-opt del-red" id="del-all-btn">Delete for everyone</div>
     </div>
 
     <div id="contacts-overlay">
@@ -125,52 +122,20 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        let myName, stream, mediaRecorder, audioChunks = [];
+        let myName, stream, mediaRecorder, audioChunks = [], currentMsgId = null;
 
         function openSidebar() { document.getElementById('menu-sidebar').classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
         function closeSidebar() { document.getElementById('menu-sidebar').classList.remove('active'); document.getElementById('overlay').style.display = 'none'; }
         function showContacts() { document.getElementById('contacts-overlay').style.display = 'flex'; closeSidebar(); }
         function hideContacts() { document.getElementById('contacts-overlay').style.display = 'none'; }
 
-        // Voice Message Logic
-        async function startVoiceRecord() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
-                audioChunks = [];
-                document.getElementById('mic-btn').classList.add('mic-active');
-                
-                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-                mediaRecorder.onstop = () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    const reader = new FileReader();
-                    reader.onload = e => {
-                        socket.emit('chat_message', { user: myName, audio: e.target.result, type: 'audio' });
-                    };
-                    reader.readAsDataURL(audioBlob);
-                    stream.getTracks().forEach(track => track.stop());
-                };
-                mediaRecorder.start();
-            } catch (err) { alert("ማይክሮፎን መጠቀም አልተቻለም!"); }
-        }
-
-        function stopVoiceRecord() {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-                document.getElementById('mic-btn').classList.remove('mic-active');
-            }
-        }
-
+        // Message Handling
         function send() {
             const i = document.getElementById('msg-in');
-            if(i.value.trim()) { socket.emit('chat_message', { user: myName, text: i.value, type: 'text' }); i.value=''; }
-        }
-
-        function sendImage(input) {
-            if(input.files && input.files[0]) {
-                const r = new FileReader();
-                r.onload = e => socket.emit('chat_message', { user: myName, img: e.target.result, type: 'image' });
-                r.readAsDataURL(input.files[0]);
+            if(i.value.trim()) { 
+                const id = 'msg-' + Date.now();
+                socket.emit('chat_message', { id: id, user: myName, text: i.value, type: 'text' }); 
+                i.value=''; 
             }
         }
 
@@ -179,49 +144,70 @@
             const div = document.createElement('div');
             const isMe = d.user === myName;
             div.className = `msg ${isMe ? 'sent' : 'received'}`;
+            div.id = d.id;
             
+            div.onclick = (e) => { showDeleteMenu(e, d.id, isMe); };
+            div.oncontextmenu = (e) => { e.preventDefault(); showDeleteMenu(e, d.id, isMe); };
+
             let content = `<b>${d.user}</b><br>`;
-            if(d.type === 'image') {
-                content += `<img src="${d.img}" class="chat-img">`;
-            } else if(d.type === 'audio') {
-                content += `<div class="voice-msg"><button class="voice-play-btn" onclick="playVoice('${d.audio}')"><i class="fas fa-play"></i></button><span>Voice Message</span></div>`;
-            } else {
-                content += d.text;
-            }
-            if(isMe) content += `<span class="tick">✓✓</span>`;
+            if(d.type === 'image') content += `<img src="${d.img}" class="chat-img">`;
+            else if(d.type === 'audio') content += `<div onclick="new Audio('${d.audio}').play()"><i class="fas fa-play-circle" style="font-size:30px; color:var(--tg-primary);"></i> Voice Message</div>`;
+            else content += d.text;
             
+            if(isMe) content += `<span class="tick">✓✓</span>`;
             div.innerHTML = content;
             box.appendChild(div);
             box.scrollTop = box.scrollHeight;
         });
 
-        function playVoice(src) {
-            const audio = new Audio(src);
-            audio.play();
-        }
+        // Smart Delete
+        function showDeleteMenu(e, msgId, isMe) {
+            e.stopPropagation();
+            const menu = document.getElementById('delete-menu');
+            menu.style.display = 'block';
+            menu.style.left = e.clientX + 'px';
+            menu.style.top = e.clientY + 'px';
 
-        // Other UI & Logic
-        function uploadStory(input) {
+            document.getElementById('del-me-btn').onclick = () => { document.getElementById(msgId).remove(); hideDeleteMenu(); };
+            const delAll = document.getElementById('del-all-btn');
+            if(isMe) {
+                delAll.style.display = 'block';
+                delAll.onclick = () => { socket.emit('delete_message', msgId); hideDeleteMenu(); };
+            } else { delAll.style.display = 'none'; }
+        }
+        function hideDeleteMenu() { document.getElementById('delete-menu').style.display = 'none'; }
+        socket.on('delete_message', id => { const el = document.getElementById(id); if(el) el.remove(); });
+
+        // Media & Calls
+        function sendImage(input) {
             if(input.files && input.files[0]) {
                 const r = new FileReader();
-                r.onload = e => {
-                    const d = document.createElement('div'); d.className='st-circle'; d.innerHTML=`<img src="${e.target.result}">`;
-                    document.getElementById('story-list').prepend(d);
-                };
+                r.onload = e => socket.emit('chat_message', { id: 'img-'+Date.now(), user: myName, img: e.target.result, type: 'image' });
                 r.readAsDataURL(input.files[0]);
             }
         }
+        async function startVoiceRecord() {
+            try {
+                const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(s); audioChunks = [];
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    const r = new FileReader();
+                    r.onload = e => socket.emit('chat_message', { id: 'voc-'+Date.now(), user: myName, audio: e.target.result, type: 'audio' });
+                    r.readAsDataURL(new Blob(audioChunks, { type: 'audio/webm' }));
+                };
+                mediaRecorder.start();
+            } catch (err) {}
+        }
+        function stopVoiceRecord() { if(mediaRecorder) mediaRecorder.stop(); }
 
         async function startCall(t) {
-            document.getElementById('call-overlay').style.display = 'flex';
-            document.getElementById('ring').play();
+            document.getElementById('call-overlay').style.display = 'flex'; document.getElementById('ring').play();
             try {
                 stream = await navigator.mediaDevices.getUserMedia({audio:true, video: t==='video'});
                 if(t==='video'){
-                    document.getElementById('rv').style.display = 'block';
-                    document.getElementById('lv').style.display = 'block';
-                    document.getElementById('lv').srcObject = stream;
-                    document.getElementById('rv').srcObject = stream;
+                    document.getElementById('rv').style.display='block'; document.getElementById('lv').style.display='block';
+                    document.getElementById('lv').srcObject=stream; document.getElementById('rv').srcObject=stream;
                 }
             } catch(e) {}
         }
@@ -237,6 +223,16 @@
             } else { alert("Error!"); }
         }
         function selectChat(n, i) { document.getElementById('h-nm').innerText = n; document.getElementById('h-av').innerText = i; document.getElementById('chat-box').innerHTML = ""; }
+        function uploadStory(input) {
+            if(input.files && input.files[0]) {
+                const r = new FileReader();
+                r.onload = e => {
+                    const d = document.createElement('div'); d.className='st-circle'; d.innerHTML=`<img src="${e.target.result}">`;
+                    document.getElementById('story-list').prepend(d);
+                };
+                r.readAsDataURL(input.files[0]);
+            }
+        }
     </script>
 
     <div id="auth" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; align-items:center; justify-content:center; z-index:5000;">
