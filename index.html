@@ -3,57 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TETA ULTIMATE SECURE</title>
+    <title>TETA ULTIMATE - Video Call Edition</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --tg-header: #527da3; --tg-bg: #e6eff5; --tg-sent: #effdde;
-            --tg-primary: #2481cc; --text: #000; --muted: #707579;
-        }
-
+        :root { --tg-header: #527da3; --tg-bg: #e6eff5; --tg-sent: #effdde; --tg-primary: #2481cc; --muted: #707579; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; background: var(--tg-bg); }
 
-        /* Sidebar Menu */
-        #menu-sidebar {
-            width: 280px; background: white; position: fixed; left: -280px; height: 100%;
-            transition: 0.3s; z-index: 2000; box-shadow: 2px 0 10px rgba(0,0,0,0.2);
-        }
+        /* Sidebar & Columns */
+        #menu-sidebar { width: 280px; background: white; position: fixed; left: -280px; height: 100%; transition: 0.3s; z-index: 2000; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
         #menu-sidebar.active { left: 0; }
+        #chat-list-column { width: 320px; background: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; flex-shrink: 0; }
+        #main-chat { flex: 1; display: flex; flex-direction: column; position: relative; }
 
-        /* Left Chat List Column */
-        #chat-list-column {
-            width: 320px; background: white; border-right: 1px solid #ddd;
-            display: flex; flex-direction: column; flex-shrink: 0;
-        }
-
+        /* UI Elements */
         .search-row { padding: 10px; display: flex; align-items: center; gap: 15px; }
         .search-input { flex: 1; padding: 8px 15px; background: #f1f1f1; border: none; border-radius: 20px; outline: none; }
-
-        /* Stories Bar */
-        #story-bar { display: flex; gap: 10px; padding: 10px; overflow-x: auto; border-bottom: 1px solid #eee; }
-        .st-circle { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--tg-primary); flex-shrink: 0; padding: 2px; cursor: pointer; }
-        .st-circle img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-
-        .chat-item { padding: 12px 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-bottom: 1px solid #f9f9f9; }
-        .chat-item:hover { background: #f4f4f4; }
-        .c-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--tg-primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-
-        /* Main Chat Area */
-        #main-chat { flex: 1; display: flex; flex-direction: column; position: relative; }
         header { background: var(--tg-header); color: white; padding: 10px 15px; display: flex; align-items: center; gap: 15px; }
         #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
-
         .msg { max-width: 75%; padding: 8px 12px; border-radius: 10px; font-size: 14.5px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         .sent { align-self: flex-end; background: var(--tg-sent); border-bottom-right-radius: 2px; }
         .received { align-self: flex-start; background: white; border-bottom-left-radius: 2px; }
 
-        .input-bar { background: white; padding: 10px 15px; display: flex; align-items: center; gap: 15px; }
-        #msg-in { flex: 1; border: none; outline: none; font-size: 16px; }
+        /* Video Call Overlay */
+        #video-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 4000; flex-direction: column; }
+        #remote-video { width: 100%; height: 100%; object-fit: cover; }
+        #local-video { width: 120px; height: 160px; position: absolute; top: 20px; right: 20px; border-radius: 10px; border: 2px solid white; object-fit: cover; z-index: 4001; background: #222; }
+        .call-controls { position: absolute; bottom: 40px; width: 100%; display: flex; justify-content: center; gap: 30px; z-index: 4002; }
+        .call-btn { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; color: white; border: none; }
 
-        /* Voice AI Overlay */
+        /* Voice AI UI */
         #voice-ui { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; flex-direction: column; align-items: center; justify-content: center; color: white; }
-        .pulse { width: 100px; height: 100px; background: var(--tg-primary); border-radius: 50%; animation: pulse-anim 1.5s infinite; display: flex; align-items: center; justify-content: center; font-size: 40px; }
-        @keyframes pulse-anim { 0% { box-shadow: 0 0 0 0 rgba(36,129,204,0.4); } 70% { box-shadow: 0 0 0 25px rgba(36,129,204,0); } 100% { box-shadow: 0 0 0 0 rgba(36,129,204,0); } }
+        .pulse { width: 80px; height: 80px; background: var(--tg-primary); border-radius: 50%; animation: pulse-anim 1.5s infinite; display: flex; align-items: center; justify-content: center; font-size: 30px; }
+        @keyframes pulse-anim { 0% { box-shadow: 0 0 0 0 rgba(36,129,204,0.4); } 70% { box-shadow: 0 0 0 20px rgba(36,129,204,0); } 100% { box-shadow: 0 0 0 0 rgba(36,129,204,0); } }
 
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 1500; }
     </style>
@@ -65,15 +46,11 @@
     <div id="menu-sidebar">
         <div style="background: var(--tg-header); padding: 30px 20px; color: white;">
             <div id="my-avatar" style="width: 50px; height: 50px; background: #2481cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 10px; border: 2px solid white;">T</div>
-            <b id="my-name-label">ተክለማርያም</b><br>
-            <small>Security Profile</small>
+            <b id="my-name-label">User</b><br><small>Security Profile</small>
         </div>
-        <div style="padding: 10px 0;">
-            <div class="chat-item" onclick="activateVoiceAI()"><i class="fas fa-robot"></i> TETA AI Assistant</div>
-            <div class="chat-item"><i class="fas fa-users"></i> New Group</div>
-            <div class="chat-item"><i class="fas fa-phone"></i> Calls</div>
-            <div class="chat-item" onclick="location.reload()" style="color:red;"><i class="fas fa-sign-out-alt"></i> Logout</div>
-        </div>
+        <div class="chat-item" onclick="activateVoiceAI()"><i class="fas fa-robot"></i> TETA AI Assistant</div>
+        <div class="chat-item" onclick="startVideoCall()"><i class="fas fa-video"></i> Video Call (Test)</div>
+        <div class="chat-item" onclick="location.reload()" style="color:red;"><i class="fas fa-sign-out-alt"></i> Logout</div>
     </div>
 
     <div id="chat-list-column">
@@ -81,46 +58,42 @@
             <i class="fas fa-bars" onclick="openSidebar()" style="cursor:pointer; color: var(--muted);"></i>
             <input type="text" class="search-input" placeholder="Search">
         </div>
-        
-        <div id="story-bar">
-            <div class="st-circle" onclick="document.getElementById('st-up').click()" style="border: 2px dashed #ccc; display:flex; align-items:center; justify-content:center; color:#999;"><i class="fas fa-plus"></i></div>
-            <input type="file" id="st-up" style="display:none" onchange="uploadStory(this)">
-            <div id="story-list" style="display:flex; gap:10px;"></div>
-        </div>
-
         <div id="chats-container" style="overflow-y: auto; flex: 1;">
-            <div class="chat-item" onclick="selectChat('TETA AI ✨', '✨')">
-                <div class="c-avatar">✨</div>
-                <div style="flex:1"><b>TETA AI ✨</b><br><small class="muted">እንዴት ልርዳዎት?</small></div>
-            </div>
-            <div class="chat-item" onclick="selectChat('ኦሞ ጸጥታ', 'ኦ')">
-                <div class="c-avatar" style="background: #e67e22;">ኦ</div>
-                <div style="flex:1"><b>ኦሞ ጸጥታ</b><br><small class="muted">ሪፖርቱ ደርሷል...</small></div>
+            <div class="chat-item" onclick="selectChat('TETA AI ✨', '✨')" style="padding:12px 15px; display:flex; gap:12px; cursor:pointer;">
+                <div style="width:48px; height:48px; border-radius:50%; background:var(--tg-primary); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold;">✨</div>
+                <div><b>TETA AI ✨</b><br><small class="muted">እንዴት ልርዳዎት?</small></div>
             </div>
         </div>
     </div>
 
     <div id="main-chat">
         <header>
-            <div class="c-avatar" id="header-avatar" style="width:40px; height:40px; font-size:16px;">✨</div>
+            <div id="header-avatar" style="width:40px; height:40px; border-radius:50%; background:white; color:var(--tg-primary); display:flex; align-items:center; justify-content:center; font-weight:bold;">✨</div>
             <div style="flex:1"><b id="chat-with">TETA AI ✨</b><br><small>online</small></div>
+            <i class="fas fa-video" onclick="startVideoCall()" style="cursor:pointer; font-size: 20px; margin-right: 15px;"></i>
             <i class="fas fa-microphone" onclick="activateVoiceAI()" style="cursor:pointer; font-size: 20px;"></i>
         </header>
-
         <div id="chat-box"></div>
-
         <div class="input-bar">
-            <i class="far fa-smile" style="font-size: 22px; color: var(--muted);"></i>
-            <input type="text" id="msg-in" placeholder="Message" onkeypress="if(event.key==='Enter') send()">
+            <input type="text" id="msg-in" placeholder="Message" style="flex:1; border:none; outline:none; font-size:16px;" onkeypress="if(event.key==='Enter') send()">
             <i class="fas fa-paper-plane" onclick="send()" style="color: var(--tg-primary); font-size: 22px; cursor: pointer;"></i>
+        </div>
+    </div>
+
+    <div id="video-overlay">
+        <video id="remote-video" autoplay playsinline></video>
+        <video id="local-video" autoplay playsinline muted></video>
+        <div class="call-controls">
+            <button class="call-btn" style="background: #555;"><i class="fas fa-microphone-slash"></i></button>
+            <button class="call-btn" style="background: #ff3b30;" onclick="endCall()"><i class="fas fa-phone-slash"></i></button>
+            <button class="call-btn" style="background: #555;"><i class="fas fa-camera"></i></button>
         </div>
     </div>
 
     <div id="voice-ui">
         <div class="pulse"><i class="fas fa-robot"></i></div>
         <h2 id="v-status">እየሰማሁ ነው...</h2>
-        <p id="v-text" style="font-style:italic; opacity:0.7;"></p>
-        <button onclick="stopVoiceAI()" style="margin-top:20px; padding:10px 30px; border-radius:20px; border:none; background:#ff4d4d; color:white; cursor:pointer;">አቁም</button>
+        <button onclick="stopVoiceAI()" style="margin-top:20px; padding:10px 30px; border-radius:20px; border:none; background:#ff4d4d; color:white;">አቁም</button>
     </div>
 
     <div id="auth" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; align-items:center; justify-content:center; z-index:5000;">
@@ -129,45 +102,49 @@
             <h2>TETA SECURE</h2>
             <input id="u-n" placeholder="ሙሉ ስም" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
             <input id="u-k" placeholder="ሚስጥራዊ ቁልፍ" type="password" style="width:100%; padding:12px; margin-bottom:20px; border:1px solid #ddd; border-radius:8px;">
-            <button onclick="login()" style="width:100%; padding:12px; background:var(--tg-primary); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">ግባ</button>
+            <button onclick="login()" style="width:100%; padding:12px; background:var(--tg-primary); color:white; border:none; border-radius:8px; font-weight:bold;">ግባ</button>
         </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        let myName, recognition;
+        let myName, recognition, localStream;
 
-        // Voice Setup
+        // Video Call Logic
+        async function startVideoCall() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('video-overlay').style.display = 'flex';
+                document.getElementById('local-video').srcObject = localStream;
+                // በሙከራ ደረጃ የራሳችንን ቪዲዮ በሪሞት ቦታ እናሳያለን (Self-view test)
+                document.getElementById('remote-video').srcObject = localStream;
+            } catch (err) {
+                alert("ካሜራ ማግኘት አልተቻለም! እባክዎ ፈቃድ ይስጡ።");
+            }
+        }
+
+        function endCall() {
+            if(localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+            document.getElementById('video-overlay').style.display = 'none';
+        }
+
+        // Voice AI Setup
         const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
         if(SpeechRec) {
             recognition = new SpeechRec();
             recognition.lang = 'am-ET';
             recognition.onresult = (e) => {
                 const text = e.results[0][0].transcript;
-                document.getElementById('v-text').innerText = text;
                 socket.emit('ask_teta_ai', text);
             };
         }
 
-        function activateVoiceAI() {
-            document.getElementById('voice-ui').style.display = 'flex';
-            if(recognition) recognition.start();
-            closeSidebar();
-        }
-
-        function stopVoiceAI() {
-            document.getElementById('voice-ui').style.display = 'none';
-            if(recognition) recognition.stop();
-            window.speechSynthesis.cancel();
-        }
-
-        socket.on('ai_voice_response', d => {
-            addMsg(d);
-            const ut = new SpeechSynthesisUtterance(d.text);
-            ut.lang = 'am-ET';
-            window.speechSynthesis.speak(ut);
-        });
+        function activateVoiceAI() { document.getElementById('voice-ui').style.display = 'flex'; if(recognition) recognition.start(); }
+        function stopVoiceAI() { document.getElementById('voice-ui').style.display = 'none'; if(recognition) recognition.stop(); window.speechSynthesis.cancel(); }
+        socket.on('ai_voice_response', d => { addMsg(d); const ut = new SpeechSynthesisUtterance(d.text); ut.lang = 'am-ET'; window.speechSynthesis.speak(ut); });
 
         function openSidebar() { document.getElementById('menu-sidebar').classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
         function closeSidebar() { document.getElementById('menu-sidebar').classList.remove('active'); document.getElementById('overlay').style.display = 'none'; }
@@ -179,15 +156,8 @@
                 myName = u;
                 document.getElementById('auth').style.display = 'none';
                 document.getElementById('my-name-label').innerText = u;
-                document.getElementById('my-avatar').innerText = u.charAt(0).toUpperCase();
                 socket.emit('verify_secure_access', { username: u, key: k });
             } else { alert("መረጃ ተሳስቷል!"); }
-        }
-
-        function selectChat(name, init) {
-            document.getElementById('chat-with').innerText = name;
-            document.getElementById('header-avatar').innerText = init;
-            document.getElementById('chat-box').innerHTML = "";
         }
 
         function send() {
@@ -206,21 +176,7 @@
             box.appendChild(div);
             box.scrollTop = box.scrollHeight;
         }
-
         socket.on('chat_message', d => addMsg(d));
-
-        function uploadStory(input) {
-            if(input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    const div = document.createElement('div');
-                    div.className = 'st-circle';
-                    div.innerHTML = `<img src="${e.target.result}">`;
-                    document.getElementById('story-list').prepend(div);
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
     </script>
 </body>
 </html>
