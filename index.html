@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TETA SUPER APP - Video & Stories</title>
+    <title>TETA ULTIMATE - Nokia Edition</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --tg-header: #527da3; --tg-bg: #e6eff5; --tg-sent: #effdde; --tg-primary: #2481cc; --muted: #707579; }
@@ -16,35 +16,29 @@
         #main-chat { flex: 1; display: flex; flex-direction: column; position: relative; }
 
         /* Stories Bar */
-        #story-bar { display: flex; gap: 10px; padding: 10px; overflow-x: auto; border-bottom: 1px solid #eee; background: white; }
-        .st-circle { width: 55px; height: 55px; border-radius: 50%; border: 2px solid var(--tg-primary); flex-shrink: 0; padding: 2px; cursor: pointer; position: relative; }
+        #story-bar { display: flex; gap: 10px; padding: 10px; overflow-x: auto; border-bottom: 1px solid #eee; background: white; min-height: 75px; }
+        .st-circle { width: 55px; height: 55px; border-radius: 50%; border: 2px solid var(--tg-primary); flex-shrink: 0; padding: 2px; cursor: pointer; }
         .st-circle img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 
         /* UI Elements */
-        .search-row { padding: 10px; display: flex; align-items: center; gap: 15px; }
-        .search-input { flex: 1; padding: 8px 15px; background: #f1f1f1; border: none; border-radius: 20px; outline: none; }
         header { background: var(--tg-header); color: white; padding: 10px 15px; display: flex; align-items: center; gap: 15px; }
         #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
-        
         .msg { max-width: 75%; padding: 8px 12px; border-radius: 10px; font-size: 14.5px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         .sent { align-self: flex-end; background: var(--tg-sent); border-bottom-right-radius: 2px; }
         .received { align-self: flex-start; background: white; border-bottom-left-radius: 2px; }
 
-        /* Video Call Overlay */
-        #video-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 4000; flex-direction: column; }
-        #remote-video { width: 100%; height: 100%; object-fit: cover; }
-        #local-video { width: 120px; height: 160px; position: absolute; top: 20px; right: 20px; border-radius: 10px; border: 2px solid white; object-fit: cover; z-index: 4001; background: #222; }
-        .call-controls { position: absolute; bottom: 40px; width: 100%; display: flex; justify-content: center; gap: 30px; z-index: 4002; }
-        .call-btn { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; color: white; border: none; }
+        /* Call Overlay */
+        #call-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b141a; z-index: 4000; flex-direction: column; align-items: center; justify-content: center; color: white; }
+        .call-avatar { width: 120px; height: 120px; border-radius: 50%; background: var(--tg-primary); font-size: 50px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; border: 3px solid white; }
+        #remote-v { width: 100%; height: 100%; object-fit: cover; position: absolute; }
+        #local-v { width: 100px; height: 140px; position: absolute; top: 20px; right: 20px; border-radius: 8px; border: 2px solid white; z-index: 4001; }
+        .call-tools { position: absolute; bottom: 50px; display: flex; gap: 30px; z-index: 4002; }
+        .c-btn { width: 65px; height: 65px; border-radius: 50%; border: none; font-size: 24px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* Voice AI UI */
-        #voice-ui { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; flex-direction: column; align-items: center; justify-content: center; color: white; }
-        .pulse { width: 80px; height: 80px; background: var(--tg-primary); border-radius: 50%; animation: pulse-anim 1.5s infinite; display: flex; align-items: center; justify-content: center; font-size: 30px; }
-        @keyframes pulse-anim { 0% { box-shadow: 0 0 0 0 rgba(36,129,204,0.4); } 70% { box-shadow: 0 0 0 20px rgba(36,129,204,0); } 100% { box-shadow: 0 0 0 0 rgba(36,129,204,0); } }
-
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 1500; }
-        .menu-item { padding: 15px 20px; display: flex; align-items: center; gap: 20px; cursor: pointer; transition: 0.2s; }
+        /* Sidebar Menu Items */
+        .menu-item { padding: 15px 20px; display: flex; align-items: center; gap: 20px; cursor: pointer; }
         .menu-item:hover { background: #f1f1f1; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 1500; }
     </style>
 </head>
 <body>
@@ -54,21 +48,19 @@
     <div id="menu-sidebar">
         <div style="background: var(--tg-header); padding: 30px 20px; color: white;">
             <div id="my-avatar" style="width: 60px; height: 60px; background: #2481cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 10px; border: 2px solid white;">T</div>
-            <b id="my-name-label">User</b><br><small>Security Profile Active</small>
+            <b id="my-name-label">User</b><br><small>TETA Secure Active</small>
         </div>
         <div class="menu-item" onclick="activateVoiceAI()"><i class="fas fa-robot"></i> TETA AI Assistant</div>
         <div class="menu-item"><i class="fas fa-users"></i> New Group</div>
-        <div class="menu-item"><i class="fas fa-user"></i> Contacts</div>
-        <div class="menu-item"><i class="fas fa-phone"></i> Calls</div>
+        <div class="menu-item" onclick="startCall('audio')"><i class="fas fa-phone"></i> Calls</div>
         <div class="menu-item"><i class="fas fa-bookmark"></i> Saved Messages</div>
-        <div class="menu-item" onclick="toggleNight()"><i class="fas fa-moon"></i> Night Mode</div>
         <div class="menu-item" onclick="location.reload()" style="color:red;"><i class="fas fa-sign-out-alt"></i> Logout</div>
     </div>
 
     <div id="chat-list-column">
-        <div class="search-row">
+        <div style="padding: 10px; display: flex; align-items: center; gap: 15px;">
             <i class="fas fa-bars" onclick="openSidebar()" style="cursor:pointer; color: var(--muted); font-size: 18px;"></i>
-            <input type="text" class="search-input" placeholder="Search">
+            <input type="text" style="flex:1; padding: 8px 15px; background: #f1f1f1; border: none; border-radius: 20px; outline: none;" placeholder="Search">
         </div>
         
         <div id="story-bar">
@@ -80,7 +72,7 @@
         <div id="chats-container" style="overflow-y: auto; flex: 1;">
             <div class="chat-item" onclick="selectChat('TETA AI ✨', '✨')" style="padding:15px; display:flex; gap:12px; cursor:pointer; border-bottom:1px solid #f5f5f5;">
                 <div style="width:50px; height:50px; border-radius:50%; background:var(--tg-primary); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:20px;">✨</div>
-                <div style="flex:1"><b>TETA AI ✨</b><br><small class="muted">እንዴት ልርዳዎት?</small></div>
+                <div><b>TETA AI ✨</b><br><small class="muted">እንዴት ልርዳዎት?</small></div>
             </div>
         </div>
     </div>
@@ -89,32 +81,34 @@
         <header>
             <div id="header-avatar" style="width:40px; height:40px; border-radius:50%; background:white; color:var(--tg-primary); display:flex; align-items:center; justify-content:center; font-weight:bold;">✨</div>
             <div style="flex:1"><b id="chat-with">TETA AI ✨</b><br><small>online</small></div>
-            <i class="fas fa-video" onclick="startVideoCall()" style="cursor:pointer; font-size: 20px; margin-right: 15px;"></i>
+            <i class="fas fa-phone" onclick="startCall('audio')" style="cursor:pointer; font-size: 20px; margin-right: 15px;"></i>
+            <i class="fas fa-video" onclick="startCall('video')" style="cursor:pointer; font-size: 20px; margin-right: 15px;"></i>
             <i class="fas fa-microphone" onclick="activateVoiceAI()" style="cursor:pointer; font-size: 20px;"></i>
         </header>
-
         <div id="chat-box"></div>
-
-        <div class="input-bar">
-            <i class="far fa-smile" style="font-size: 22px; color: var(--muted); cursor:pointer;"></i>
+        <div style="background: white; padding: 10px 15px; display: flex; align-items: center; gap: 15px;">
             <input type="text" id="msg-in" placeholder="Message" style="flex:1; border:none; outline:none; font-size:16px;" onkeypress="if(event.key==='Enter') send()">
             <i class="fas fa-paper-plane" onclick="send()" style="color: var(--tg-primary); font-size: 22px; cursor: pointer;"></i>
         </div>
     </div>
 
-    <div id="video-overlay">
-        <video id="remote-video" autoplay playsinline></video>
-        <video id="local-video" autoplay playsinline muted></video>
-        <div class="call-controls">
-            <button class="call-btn" style="background: #ff3b30;" onclick="endCall()"><i class="fas fa-phone-slash"></i></button>
+    <div id="call-overlay">
+        <video id="remote-v" autoplay playsinline style="display:none;"></video>
+        <video id="local-v" autoplay playsinline muted style="display:none;"></video>
+        <div id="call-info" style="text-align: center;">
+            <div class="call-avatar">✨</div>
+            <h2 id="call-name">TETA AI</h2>
+            <p id="call-status">እየጠራ ነው...</p>
+        </div>
+        <div class="call-tools">
+            <button class="c-btn" style="background: #ff3b30;" onclick="endCall()"><i class="fas fa-phone-slash"></i></button>
         </div>
     </div>
 
-    <div id="voice-ui">
-        <div class="pulse"><i class="fas fa-robot"></i></div>
-        <h2 id="v-status">እየሰማሁ ነው...</h2>
-        <button onclick="stopVoiceAI()" style="margin-top:20px; padding:10px 30px; border-radius:20px; border:none; background:#ff4d4d; color:white;">አቁም</button>
-    </div>
+    <audio id="ringtone" loop>
+        <source src="https://www.zedge.net/ringtone/8254b971-e5d3-356c-9473-0428d022ec14" type="audio/mpeg">
+        <source src="https://search66.com/files/ringtone/2021/08/nokia_tune.mp3" type="audio/mpeg">
+    </audio>
 
     <div id="auth" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; align-items:center; justify-content:center; z-index:5000;">
         <div style="text-align:center; width:280px;">
@@ -129,24 +123,39 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        let myName, recognition, localStream;
+        let myName, recognition, localStream, ringtone = document.getElementById('ringtone');
 
-        // Video Call
-        async function startVideoCall() {
+        async function startCall(type) {
+            document.getElementById('call-overlay').style.display = 'flex';
+            document.getElementById('call-name').innerText = document.getElementById('chat-with').innerText;
+            
+            // Play Nokia Ringtone
+            ringtone.play().catch(e => console.log("Audio play failed, user interaction needed."));
+
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                document.getElementById('video-overlay').style.display = 'flex';
-                document.getElementById('local-video').srcObject = localStream;
-                document.getElementById('remote-video').srcObject = localStream;
-            } catch (err) { alert("ካሜራ ማግኘት አልተቻለም!"); }
+                const constraints = { audio: true, video: type === 'video' };
+                localStream = await navigator.mediaDevices.getUserMedia(constraints);
+                if(type === 'video') {
+                    document.getElementById('remote-v').style.display = 'block';
+                    document.getElementById('local-v').style.display = 'block';
+                    document.getElementById('call-info').style.display = 'none';
+                    document.getElementById('local-v').srcObject = localStream;
+                    document.getElementById('remote-v').srcObject = localStream;
+                }
+            } catch (err) { console.log(err); }
         }
-        function endCall() { if(localStream) localStream.getTracks().forEach(t => t.stop()); document.getElementById('video-overlay').style.display = 'none'; }
 
-        // Sidebar logic
+        function endCall() {
+            if(localStream) localStream.getTracks().forEach(t => t.stop());
+            ringtone.pause();
+            ringtone.currentTime = 0;
+            document.getElementById('call-overlay').style.display = 'none';
+            document.getElementById('call-info').style.display = 'block';
+        }
+
         function openSidebar() { document.getElementById('menu-sidebar').classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
         function closeSidebar() { document.getElementById('menu-sidebar').classList.remove('active'); document.getElementById('overlay').style.display = 'none'; }
 
-        // Stories logic
         function uploadStory(input) {
             if(input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -160,7 +169,6 @@
             }
         }
 
-        // Authentication
         function login() {
             const u = document.getElementById('u-n').value;
             const k = document.getElementById('u-k').value;
@@ -172,18 +180,15 @@
             } else { alert("መረጃ ተሳስቷል!"); }
         }
 
-        // Voice AI
         const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
         if(SpeechRec) {
             recognition = new SpeechRec();
             recognition.lang = 'am-ET';
             recognition.onresult = (e) => socket.emit('ask_teta_ai', e.results[0][0].transcript);
         }
-        function activateVoiceAI() { document.getElementById('voice-ui').style.display = 'flex'; if(recognition) recognition.start(); }
-        function stopVoiceAI() { document.getElementById('voice-ui').style.display = 'none'; if(recognition) recognition.stop(); window.speechSynthesis.cancel(); }
+        function activateVoiceAI() { document.getElementById('call-overlay').style.display='none'; if(recognition) recognition.start(); }
         socket.on('ai_voice_response', d => { addMsg(d); const ut = new SpeechSynthesisUtterance(d.text); ut.lang = 'am-ET'; window.speechSynthesis.speak(ut); });
 
-        // Messages
         function send() {
             const input = document.getElementById('msg-in');
             if(input.value.trim()) { socket.emit('chat_message', { user: myName, text: input.value }); input.value = ''; }
