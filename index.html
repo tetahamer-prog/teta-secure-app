@@ -1,79 +1,461 @@
-<div class="menu-item" onclick="activateVoiceAI()" style="background: rgba(0, 168, 132, 0.1); border-left: 4px solid var(--primary);">
-    <i class="fas fa-microphone-alt" style="color: var(--primary);"></i> <b>የድምፅ ረዳት (Voice AI)</b>
-</div>
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TETA SECURE - Telegram Style</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0b141a;
+            --side: #111b21;
+            --header: #202c33;
+            --primary: #00a884;
+            --text: #e9edef;
+            --muted: #8696a0;
+            --sent: #005c4b;
+            --received: #202c33;
+            --accent: #ffd700;
+        }
 
-<div id="voice-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(11,20,26,0.95); z-index:3000; text-align:center; padding-top:100px;">
-    <div class="p-avatar" style="width:120px; height:120px; margin:0 auto 30px; border:4px solid var(--primary); animation: pulse-border 2s infinite;">
-        <i class="fas fa-robot fa-3x" style="color:var(--primary)"></i>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar - Telegram Style */
+        #sidebar {
+            width: 300px;
+            background-color: var(--side);
+            position: absolute;
+            left: -300px;
+            height: 100%;
+            transition: 0.3s ease-in-out;
+            z-index: 1000;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+
+        #sidebar.active { left: 0; }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 900;
+        }
+
+        .side-header {
+            padding: 30px 20px;
+            background-color: var(--header);
+            text-align: left;
+        }
+
+        .profile-box {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .p-avatar {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: #2a3942;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            border: 2px solid var(--primary);
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .p-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        .menu-item {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+
+        .menu-item:hover { background: rgba(255,255,255,0.05); }
+        .menu-item i { color: var(--muted); width: 20px; text-align: center; }
+
+        /* Main Content */
+        #main-wrapper {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            position: relative;
+        }
+
+        header {
+            background-color: var(--header);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 50px;
+        }
+
+        /* Stories Bar */
+        #story-bar {
+            display: flex;
+            gap: 12px;
+            padding: 10px 15px;
+            background-color: var(--side);
+            overflow-x: auto;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .story-item {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            padding: 2px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .story-item img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+        /* Chat Box */
+        #chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); /* Telegram pattern */
+            background-blend-mode: overlay;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 14.5px;
+            line-height: 1.4;
+            position: relative;
+        }
+
+        .sent { align-self: flex-end; background-color: var(--sent); border-bottom-right-radius: 2px; }
+        .received { align-self: flex-start; background-color: var(--received); border-bottom-left-radius: 2px; }
+
+        .msg-time {
+            font-size: 10px;
+            color: rgba(255,255,255,0.5);
+            margin-top: 4px;
+            text-align: right;
+            display: block;
+        }
+
+        /* Input Area */
+        .input-area {
+            background-color: var(--header);
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #msg-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            font-size: 16px;
+        }
+
+        /* Voice Overlay */
+        #voice-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11,20,26,0.98);
+            z-index: 2000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mic-circle {
+            width: 120px;
+            height: 120px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            box-shadow: 0 0 20px var(--primary);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 168, 132, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(0, 168, 132, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 168, 132, 0); }
+        }
+
+        /* Login Screen */
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+        }
+
+        .login-card {
+            background: var(--side);
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            width: 320px;
+            border-top: 5px solid var(--primary);
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #2a3942;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        .btn-main {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay" onclick="toggleSidebar()"></div>
+
+    <div id="sidebar">
+        <div class="side-header">
+            <div class="profile-box">
+                <div class="p-avatar" onclick="document.getElementById('pp-in').click()">
+                    <i class="fas fa-user" id="pp-placeholder"></i>
+                    <img id="pp-final" style="display:none">
+                </div>
+                <input type="file" id="pp-in" style="display:none" onchange="setPP(this)">
+                <b id="user-name-label" style="font-size: 18px;">የተጠቃሚ ስም</b>
+                <small style="color: var(--muted);">+251 912 34 56 78</small>
+            </div>
+        </div>
+
+        <div class="menu-item" onclick="startVoiceAssistant()"><i class="fas fa-robot"></i> TETA AI (Voice)</div>
+        <div class="menu-item"><i class="fas fa-users"></i> አዲስ ግሩፕ</div>
+        <div class="menu-item"><i class="fas fa-bullhorn"></i> አዲስ ቻናል</div>
+        <div class="menu-item"><i class="fas fa-phone"></i> ጥሪዎች</div>
+        <div class="menu-item" onclick="toggleDarkMode()"><i class="fas fa-moon"></i> የሌሊት ሁነታ</div>
+        <div class="menu-item" onclick="location.reload()" style="color: #ff4d4d;"><i class="fas fa-sign-out-alt"></i> ውጣ</div>
     </div>
-    <h2 id="ai-status" style="color:white;">እየሰማሁ ነው...</h2>
-    <p id="user-said" style="color:var(--muted); font-style:italic; padding:20px;"></p>
-    <div id="wave-container" style="display:flex; justify-content:center; gap:5px; height:30px; margin-bottom:50px;">
-        <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <h2 style="color: var(--primary);">TETA SECURE</h2>
+            <p style="font-size: 13px; color: var(--muted);">የደቡብ ኦሞ ጸጥታ ግብረ-ሃይል</p>
+            <input type="text" id="u-name" placeholder="ሙሉ ስም">
+            <input type="password" id="u-key" placeholder="ሚስጥራዊ ቁልፍ">
+            <button class="btn-main" onclick="handleLogin()">ግባ</button>
+        </div>
     </div>
-    <button onclick="stopVoiceAI()" style="background:#ff3b30; color:white; border:none; padding:15px 40px; border-radius:30px; font-weight:bold; cursor:pointer;">አቁም</button>
-</div>
 
-<style>
-    @keyframes pulse-border { 0% { box-shadow: 0 0 0 0px rgba(0, 168, 132, 0.4); } 70% { box-shadow: 0 0 0 30px rgba(0, 168, 132, 0); } 100% { box-shadow: 0 0 0 0px rgba(0, 168, 132, 0); } }
-    .wave-bar { width:5px; height:100%; background:var(--primary); animation: wave 1s infinite; }
-    @keyframes wave { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1.5); } }
-</style>
+    <div id="main-wrapper">
+        <header>
+            <i class="fas fa-bars" onclick="toggleSidebar()" style="cursor:pointer; font-size: 18px;"></i>
+            <div style="text-align: center;">
+                <b>TETA SECURE PRO</b><br>
+                <small id="status" style="font-size: 10px; color: var(--primary);">online</small>
+            </div>
+            <i class="fas fa-search" style="opacity: 0.6;"></i>
+        </header>
 
-<script>
-    // 1. ድምፅን ወደ ጽሁፍ መቀየር (Recognition)
-    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition;
-    if(SpeechRec) {
-        recognition = new SpeechRec();
-        recognition.lang = 'am-ET'; // አማርኛ እንዲሰማ
-        recognition.continuous = false;
+        <div id="story-bar">
+            <div class="story-item" onclick="document.getElementById('st-in').click()" style="display:flex; align-items:center; justify-content:center; border: 2px dashed var(--muted);">
+                <i class="fas fa-plus"></i>
+            </div>
+            <input type="file" id="st-in" style="display:none" onchange="addStory(this)">
+            <div id="stories-list" style="display:flex; gap:10px;"></div>
+        </div>
 
-        recognition.onresult = (e) => {
-            const transcript = e.results[0][0].transcript;
-            document.getElementById('user-said').innerText = `ያሉት፡ "${transcript}"`;
-            document.getElementById('ai-status').innerText = "እያሰላሁ ነው...";
-            socket.emit('ask_teta_ai', transcript); // ለ AI መላክ
-        };
+        <div id="chat-box"></div>
 
-        recognition.onend = () => {
-            if(document.getElementById('voice-overlay').style.display === 'block') {
-                document.getElementById('ai-status').innerText = "ምላሽ እየሰጠሁ ነው...";
+        <div class="input-area">
+            <i class="far fa-smile" style="font-size: 22px; color: var(--muted); cursor:pointer;"></i>
+            <input type="text" id="msg-input" placeholder="መልዕክት..." onkeypress="if(event.key==='Enter') sendMessage()">
+            <i class="fas fa-paperclip" style="font-size: 20px; color: var(--muted); cursor:pointer;" onclick="document.getElementById('file-in').click()"></i>
+            <input type="file" id="file-in" style="display:none">
+            <i class="fas fa-microphone" id="mic-btn" style="font-size: 22px; color: var(--primary); cursor:pointer;" onclick="startVoiceAssistant()"></i>
+            <i class="fas fa-paper-plane" id="send-btn" style="display:none; font-size: 22px; color: var(--primary); cursor:pointer;" onclick="sendMessage()"></i>
+        </div>
+    </div>
+
+    <div id="voice-overlay">
+        <div class="mic-circle"><i class="fas fa-robot"></i></div>
+        <h2 style="color: white; margin-top: 30px;" id="voice-status">እየሰማሁ ነው...</h2>
+        <p id="user-voice-text" style="color: var(--muted); padding: 0 40px; font-style: italic;"></p>
+        <button class="btn-main" style="width: 150px; background: #ff4d4d; margin-top: 40px;" onclick="stopVoiceAssistant()">አቁም</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let currentUserName;
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition;
+
+        if (SpeechRec) {
+            recognition = new SpeechRec();
+            recognition.lang = 'am-ET';
+            recognition.onresult = (e) => {
+                const text = e.results[0][0].transcript;
+                document.getElementById('user-voice-text').innerText = `"${text}"`;
+                socket.emit('ask_teta_ai', text);
+            };
+        }
+
+        function toggleSidebar() {
+            const sb = document.getElementById('sidebar');
+            sb.classList.toggle('active');
+            document.querySelector('.overlay').style.display = sb.classList.contains('active') ? 'block' : 'none';
+        }
+
+        function handleLogin() {
+            const u = document.getElementById('u-name').value;
+            const k = document.getElementById('u-key').value;
+            if (u && k === "OMO_SAFETY_2026_SECURE") {
+                currentUserName = u;
+                socket.emit('verify_secure_access', { username: u, key: k });
+            } else { alert("ስም ወይም ቁልፍ ተሳስቷል!"); }
+        }
+
+        socket.on('login_success', () => {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-wrapper').style.display = 'flex';
+            document.getElementById('user-name-label').innerText = currentUserName;
+        });
+
+        // Chat Logic
+        const msgIn = document.getElementById('msg-input');
+        msgIn.addEventListener('input', () => {
+            const sendBtn = document.getElementById('send-btn');
+            const micBtn = document.getElementById('mic-btn');
+            if (msgIn.value.trim().length > 0) {
+                sendBtn.style.display = 'block';
+                micBtn.style.display = 'none';
+            } else {
+                sendBtn.style.display = 'none';
+                micBtn.style.display = 'block';
             }
-        };
-    }
+        });
 
-    // 2. ጽሁፍን ወደ ድምፅ መቀየር (Synthesis)
-    function speak(text) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'am-ET'; // አማርኛ እንዲናገር (ካለ) ወይም 'en-US'
-        utterance.rate = 0.9;
-        window.speechSynthesis.speak(utterance);
-        
-        utterance.onend = () => {
-            document.getElementById('ai-status').innerText = "ተናግሬ ጨርሻለሁ";
-            setTimeout(stopVoiceAI, 2000); // ምላሹ ካለቀ በኋላ ዝጋው
-        };
-    }
+        function sendMessage() {
+            const text = msgIn.value.trim();
+            if (text) {
+                socket.emit('chat_message', { user: currentUserName, text: text });
+                msgIn.value = '';
+                document.getElementById('send-btn').style.display = 'none';
+                document.getElementById('mic-btn').style.display = 'block';
+            }
+        }
 
-    // AI Voice መቆጣጠሪያዎች
-    function activateVoiceAI() {
-        document.getElementById('voice-overlay').style.display = 'block';
-        toggleSidebar();
-        recognition.start();
-        document.getElementById('ai-status').innerText = "እየሰማሁ ነው...";
-    }
+        socket.on('chat_message', (data) => {
+            const box = document.getElementById('chat-box');
+            const div = document.createElement('div');
+            const isMe = data.user === currentUserName;
+            div.className = `message ${isMe ? 'sent' : 'received'}`;
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            div.innerHTML = `<b>${data.user}</b><br>${data.text}<span class="msg-time">${time}</span>`;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        });
 
-    function stopVoiceAI() {
-        document.getElementById('voice-overlay').style.display = 'none';
-        recognition.stop();
-        window.speechSynthesis.cancel();
-    }
+        // AI Voice Helper
+        function startVoiceAssistant() {
+            if (!recognition) return alert("ይህ ብሮውዘር ድምፅ አይቀበልም!");
+            document.getElementById('voice-overlay').style.display = 'flex';
+            recognition.start();
+        }
 
-    // ከ AI የሚመጣ የድምፅ ምላሽ መቀበያ
-    socket.on('ai_voice_response', (data) => {
-        addMsg({ user: data.user, text: data.text, isAI: true }); // በቻቱ ላይ አሳይ
-        document.getElementById('ai-status').innerText = "እየተናገርኩ ነው...";
-        speak(data.text); // በድምፅ ተናገር
-    });
-</script>
+        function stopVoiceAssistant() {
+            document.getElementById('voice-overlay').style.display = 'none';
+            recognition.stop();
+            window.speechSynthesis.cancel();
+        }
+
+        socket.on('ai_voice_response', (data) => {
+            document.getElementById('voice-status').innerText = "ምላሽ እየሰጠሁ ነው...";
+            const utterance = new SpeechSynthesisUtterance(data.text);
+            utterance.lang = 'am-ET';
+            window.speechSynthesis.speak(utterance);
+            utterance.onend = () => { if(document.getElementById('voice-overlay').style.display === 'flex') stopVoiceAssistant(); };
+        });
+
+        // Profile & Story
+        function setPP(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    document.getElementById('pp-final').src = e.target.result;
+                    document.getElementById('pp-final').style.display = 'block';
+                    document.getElementById('pp-placeholder').style.display = 'none';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function addStory(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const list = document.getElementById('stories-list');
+                    const div = document.createElement('div');
+                    div.className = 'story-item';
+                    div.innerHTML = `<img src="${e.target.result}">`;
+                    list.prepend(div);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+</body>
+</html>
