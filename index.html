@@ -3,51 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TETA SECURE - Command Center</title>
+    <title>TETA SECURE PRO - ደቡብ ኦሞ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0b141a; color: white; margin: 0; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
-        #auth-ui { background: #1f2c33; padding: 40px; border-radius: 15px; width: 320px; text-align: center; align-self: center; border: 1px solid #00a884; }
-        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #2a3942; color: white; outline: none; }
-        
-        #main-app { display: none; flex-direction: column; height: 100vh; width: 100%; max-width: 500px; background: #111b21; position: relative; }
-        header { background: #202c33; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222e35; }
-        
-        /* Users List Bar */
-        #user-bar { background: #182229; padding: 8px 15px; font-size: 12px; display: flex; gap: 10px; overflow-x: auto; border-bottom: 1px solid #222e35; }
-        .user-tag { background: #2a3942; padding: 4px 10px; border-radius: 15px; color: #00a884; cursor: pointer; border: 1px solid #00a884; white-space: nowrap; }
+        :root { 
+            --bg: #0b141a; --side: #111b21; --header: #202c33; --primary: #00a884; 
+            --text: #e9edef; --muted: #8696a0; --sent: #005c4b; --received: #202c33;
+        }
+        .light-mode {
+            --bg: #f0f2f5; --side: #ffffff; --header: #00a884; --primary: #075e54;
+            --text: #111b21; --muted: #667781; --sent: #d9fdd3; --received: #ffffff;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; transition: 0.3s; }
 
-        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { max-width: 80%; padding: 10px; border-radius: 10px; font-size: 15px; position: relative; }
-        .sent { align-self: flex-end; background: #005c4b; }
-        .received { align-self: flex-start; background: #202c33; }
-        .status-msg { align-self: center; font-size: 11px; color: #8696a0; background: rgba(0,0,0,0.2); padding: 3px 10px; border-radius: 10px; }
+        /* Sidebar & Overlay */
+        #sidebar { width: 300px; background: var(--side); border-right: 1px solid rgba(255,255,255,0.1); position: absolute; left: -300px; height: 100%; z-index: 1000; transition: 0.3s; display: flex; flex-direction: column; }
+        #sidebar.active { left: 0; box-shadow: 5px 0 15px rgba(0,0,0,0.5); }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
 
-        /* Emoji & Private Tool */
-        #emoji-picker { display: none; position: absolute; bottom: 70px; left: 10px; background: #2a3942; padding: 10px; border-radius: 10px; z-index: 100; display: none; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-        #emoji-picker span { font-size: 20px; cursor: pointer; }
+        /* Sidebar Header */
+        .side-head { padding: 30px 20px; background: var(--header); color: white; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .p-img { width: 60px; height: 60px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 10px; border: 2px solid white; }
 
-        .controls { display: flex; gap: 10px; padding: 15px; background: #202c33; align-items: center; }
-        #msgInput { flex: 1; padding: 12px; border-radius: 25px; border: none; background: #2a3942; color: white; outline: none; }
+        /* Menu Items */
+        .menu-list { flex: 1; overflow-y: auto; padding: 10px 0; }
+        .item { padding: 12px 20px; display: flex; align-items: center; gap: 20px; cursor: pointer; transition: 0.2s; }
+        .item:hover { background: rgba(255,255,255,0.05); }
+        .item i { width: 20px; color: var(--muted); font-size: 18px; }
+
+        /* Main UI */
+        #main { flex: 1; display: none; flex-direction: column; height: 100vh; position: relative; }
+        header { background: var(--header); padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; height: 50px; }
         
-        #incoming-call { position: absolute; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        #user-bar { background: var(--side); display: flex; gap: 10px; padding: 10px; overflow-x: auto; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .u-card { min-width: 80px; text-align: center; background: rgba(255,255,255,0.03); padding: 8px; border-radius: 12px; cursor: pointer; border: 1.5px solid transparent; }
+        .u-card.active { border-color: var(--primary); background: rgba(0, 168, 132, 0.1); }
+        
+        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-blend-mode: overlay; background-color: var(--bg); }
+        .m-bubble { max-width: 85%; padding: 8px 12px; border-radius: 10px; font-size: 14.5px; line-height: 1.4; position: relative; }
+        .sent { align-self: flex-end; background: var(--sent); color: var(--text); }
+        .received { align-self: flex-start; background: var(--received); color: var(--text); }
+
+        .input-area { background: var(--header); padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
+        input[type="text"] { flex: 1; background: var(--side); border: none; padding: 12px 20px; border-radius: 25px; color: var(--text); outline: none; }
+        
+        #call-ui { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
-<body>
+<body id="app-body">
 
-    <div id="auth-ui">
-        <h2 style="color:#00a884;"><i class="fas fa-shield-halved"></i> TETA SECURE</h2>
-        <input id="username" placeholder="ሙሉ ስም">
-        <input id="secure-key" placeholder="ሚስጥራዊ ቁልፍ" type="password">
-        <button onclick="login()" style="background:#00a884; color:white; border:none; padding:12px; width:100%; border-radius:8px; cursor:pointer;">ግባ</button>
+    <div class="overlay" onclick="toggleSidebar()"></div>
+
+    <div id="sidebar">
+        <div class="side-head">
+            <div class="p-img"><i class="fas fa-user-shield"></i></div>
+            <b id="side-username">ተጠቃሚ</b><br>
+            <small style="color:var(--primary)">ኢትዮጵያ - ደቡብ ኦሞ</small>
+        </div>
+        <div class="menu-list">
+            <div class="item" onclick="alert('Account Details Coming Soon')"><i class="fas fa-user-circle"></i> My Account</div>
+            <div class="item" onclick="toggleNightMode()"><i class="fas fa-moon"></i> Night Mode <span style="margin-left:auto; font-size:10px; color:var(--primary)">On/Off</span></div>
+            <div class="item" onclick="alert('Notifications Silenced')"><i class="fas fa-bell"></i> Notification Sound</div>
+            <div class="item" onclick="alert('Privacy Locked')"><i class="fas fa-shield-alt"></i> Privacy & Security</div>
+            <div class="item" onclick="alert('Chat Cleaned')"><i class="fas fa-broom"></i> Clear Chat History</div>
+            <div class="item" onclick="alert('Language: Amharic')"><i class="fas fa-language"></i> Language (አማርኛ)</div>
+            <div class="item" onclick="window.location.reload()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+        </div>
     </div>
 
-    <div id="main-app">
+    <div id="main">
         <header>
-            <div><b style="color:#00a884;">🛡️ TETA HUB</b><br><small id="target-view" style="color:#8696a0;">ለሁሉም (Public)</small></div>
-            <div style="display:flex; gap:15px; color:#8696a0;">
-                <i class="fas fa-video" onclick="initiateCall('video')" style="cursor:pointer;"></i>
-                <i class="fas fa-phone" onclick="initiateCall('audio')" style="cursor:pointer;"></i>
+            <i class="fas fa-bars" onclick="toggleSidebar()" style="cursor:pointer; font-size:20px;"></i>
+            <div style="text-align:center">
+                <b id="chat-title" style="color:var(--primary)">🛡️ TETA SECURE</b><br>
+                <small id="status-text" style="font-size:10px; color:var(--muted)">Public Group</small>
+            </div>
+            <div style="display:flex; gap:18px;">
+                <i class="fas fa-video" onclick="makeCall()" style="cursor:pointer"></i>
+                <i class="fas fa-ellipsis-v"></i>
             </div>
         </header>
 
@@ -55,27 +88,29 @@
 
         <div id="chat-box"></div>
 
-        <div id="emoji-picker">
-            <span onclick="addEmoji('😊')">😊</span><span onclick="addEmoji('🫡')">🫡</span>
-            <span onclick="addEmoji('🚨')">🚨</span><span onclick="addEmoji('✅')">✅</span>
-            <span onclick="addEmoji('🇪🇹')">🇪🇹</span>
+        <div class="input-area">
+            <i class="fas fa-smile" style="color:var(--muted); font-size:20px;"></i>
+            <i class="fas fa-paperclip" onclick="document.getElementById('file-in').click()" style="color:var(--muted); font-size:20px; cursor:pointer;"></i>
+            <input type="file" id="file-in" style="display:none" onchange="sendFile(this)">
+            <input type="text" id="msg-in" placeholder="መልዕክት..." onkeypress="if(event.key==='Enter') send()">
+            <button onclick="send()" style="background:var(--primary); border:none; width:40px; height:40px; border-radius:50%; color:white;"><i class="fas fa-paper-plane"></i></button>
         </div>
+    </div>
 
-        <div id="incoming-call">
-            <h2 id="caller-id">ጥሪ...</h2>
-            <div style="display:flex; gap:20px;">
-                <button onclick="endCall()" style="background:#dc3545; border:none; padding:15px; border-radius:50%; color:white;"><i class="fas fa-phone-slash"></i></button>
-                <button onclick="acceptCall()" style="background:#28a745; border:none; padding:15px; border-radius:50%; color:white;"><i class="fas fa-phone"></i></button>
-            </div>
+    <div id="call-ui">
+        <div style="width:120px; height:120px; border-radius:50%; background:var(--primary); display:flex; align-items:center; justify-content:center; margin-bottom:30px; animation:pulse 1s infinite;"><i class="fas fa-phone fa-3x" style="color:white"></i></div>
+        <h2 id="caller-name">ጥሪ እየመጣ ነው...</h2>
+        <div style="display:flex; gap:40px; margin-top:20px;">
+            <button onclick="endCall()" style="background:#dc3545; color:white; border:none; padding:20px; border-radius:50%; cursor:pointer;"><i class="fas fa-phone-slash fa-lg"></i></button>
+            <button onclick="acceptCall()" style="background:#28a745; color:white; border:none; padding:20px; border-radius:50%; cursor:pointer;"><i class="fas fa-check fa-lg"></i></button>
         </div>
+    </div>
 
-        <div class="controls">
-            <i class="fas fa-smile" style="color:#8696a0; cursor:pointer;" onclick="toggleEmoji()"></i>
-            <i class="fas fa-paperclip" style="color:#8696a0; cursor:pointer;" onclick="document.getElementById('fileInput').click()"></i>
-            <input type="file" id="fileInput" style="display:none" onchange="sendFile(this)">
-            <input type="text" id="msgInput" placeholder="መልዕክት..." onkeypress="if(event.key==='Enter') sendMsg()">
-            <button onclick="sendMsg()" style="background:#00a884; border:none; width:40px; height:40px; border-radius:50%; color:white;"><i class="fas fa-paper-plane"></i></button>
-        </div>
+    <div id="auth" style="margin:auto; width:320px; background:#1f2c33; padding:40px; border-radius:20px; text-align:center; border:1px solid var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <h2 style="color:var(--primary); margin-bottom:30px;">🛡️ TETA SECURE</h2>
+        <input id="u-name" placeholder="ሙሉ ስም" type="text" style="width:100%; padding:12px; margin-bottom:15px; background:#2a3942; border:none; color:white; border-radius:8px;">
+        <input id="u-key" placeholder="ሚስጥራዊ ቁልፍ" type="password" style="width:100%; padding:12px; margin-bottom:20px; background:#2a3942; border:none; color:white; border-radius:8px;">
+        <button onclick="login()" style="width:100%; padding:14px; background:var(--primary); border:none; color:white; border-radius:8px; cursor:pointer; font-weight:bold;">ግባ (LOGIN)</button>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -83,47 +118,58 @@
         const socket = io();
         let myUser, selectedUser = null;
 
+        function toggleSidebar() { 
+            const s = document.getElementById('sidebar');
+            const o = document.querySelector('.overlay');
+            s.classList.toggle('active');
+            o.style.display = s.classList.contains('active') ? 'block' : 'none';
+        }
+
+        function toggleNightMode() {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            alert(isLight ? "Light Mode በርቷል" : "Night Mode በርቷል");
+        }
+
         function login() {
-            const name = document.getElementById('username').value;
-            const key = document.getElementById('secure-key').value;
-            if(name && key === "OMO_SAFETY_2026_SECURE") {
+            const name = document.getElementById('u-name').value;
+            const key = document.getElementById('u-key').value;
+            if(name && key) {
                 myUser = name;
                 socket.emit('verify_secure_access', { username: name, key: key });
-            } else { alert("ስህተት!"); }
+            }
         }
 
         socket.on('login_success', () => {
-            document.getElementById('auth-ui').style.display = 'none';
-            document.getElementById('main-app').style.display = 'flex';
+            document.getElementById('auth').style.display = 'none';
+            document.getElementById('main').style.display = 'flex';
+            document.getElementById('side-username').innerText = myUser;
         });
 
-        // ኦንላይን/ኦፍላይን ሁኔታ ማሳያ
         socket.on('user_status', d => {
             const bar = document.getElementById('user-bar');
-            bar.innerHTML = d.allUsers.map(u => `<span class="user-tag" onclick="selectUser('${u}')">${u === myUser ? 'እኔ' : u}</span>`).join('');
-            
-            const div = document.createElement('div');
-            div.className = "status-msg";
-            div.innerText = `${d.user} ${d.status === 'online' ? 'ገባ' : 'ወጣ'}`;
-            document.getElementById('chat-box').appendChild(div);
+            bar.innerHTML = Object.keys(d.allUsers).map(u => `
+                <div class="u-card ${selectedUser === u ? 'active' : ''}" onclick="selectUser('${u}')">
+                    <b style="font-size:12px; display:block;">${u === myUser ? 'እኔ' : u}</b>
+                    <span style="font-size:9px; color:${d.allUsers[u].lastSeen === 'Online' ? '#00a884' : '#8696a0'}">
+                        ${d.allUsers[u].lastSeen}
+                    </span>
+                </div>
+            `).join('');
         });
 
-        function selectUser(user) {
-            if(user === myUser) { selectedUser = null; document.getElementById('target-view').innerText = "ለሁሉም (Public)"; }
-            else { selectedUser = user; document.getElementById('target-view').innerText = "ለ " + user + " (Private)"; }
+        function selectUser(u) {
+            selectedUser = (u === myUser) ? null : u;
+            document.getElementById('chat-title').innerText = selectedUser ? selectedUser : "🛡️ TETA SECURE";
+            document.getElementById('status-text').innerText = selectedUser ? "Private Message" : "Public Group";
+            document.querySelectorAll('.u-card').forEach(c => c.classList.remove('active'));
         }
 
-        function toggleEmoji() { 
-            const p = document.getElementById('emoji-picker');
-            p.style.display = p.style.display === 'grid' ? 'none' : 'grid';
-        }
-        function addEmoji(e) { document.getElementById('msgInput').value += e; toggleEmoji(); }
-
-        function sendMsg() {
-            const txt = document.getElementById('msgInput').value;
+        function send() {
+            const txt = document.getElementById('msg-in').value;
             if(txt) {
-                socket.emit('chat_message', { user: myUser, text: txt, to: selectedUser });
-                document.getElementById('msgInput').value = '';
+                socket.emit('chat_message', { user: myUser, text: txt, to: selectedUser, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+                document.getElementById('msg-in').value = '';
             }
         }
 
@@ -137,31 +183,31 @@
         socket.on('chat_message', d => {
             const box = document.getElementById('chat-box');
             const div = document.createElement('div');
-            div.className = `msg ${d.user === myUser ? 'sent' : 'received'}`;
+            const isMe = d.user === myUser;
+            div.className = `m-bubble ${isMe ? 'sent' : 'received'}`;
             let content = d.text;
             if(d.file) {
-                if(d.fType.startsWith('image/')) content = `<img src="${d.file}" style="max-width:100%"><br>${d.text}`;
-                else content = `<i class="fas fa-file"></i> <a href="${d.file}" download="${d.text}" style="color:white">${d.text}</a>`;
+                if(d.fType.startsWith('image/')) content = `<img src="${d.file}" style="max-width:100%; border-radius:8px;"><br><small>${d.text}</small>`;
+                else content = `<i class="fas fa-file"></i> <a href="${d.file}" download="${d.text}" style="color:inherit">${d.text}</a>`;
             }
-            div.innerHTML = (d.to ? "🔒 (Private) " : "") + `<b>${d.user}:</b><br>${content}`;
+            div.innerHTML = `<b>${d.user}</b><br>${content}<br><small style="font-size:9px; float:right; opacity:0.6">${d.time || ''}</small>`;
             box.appendChild(div);
             box.scrollTop = box.scrollHeight;
         });
 
-        function initiateCall(type) {
+        function makeCall() {
             if(!selectedUser) return alert("እባክዎ መጀመሪያ የሚደውሉለትን ሰው ከላይ ይምረጡ!");
-            socket.emit('call_user', { from: myUser, to: selectedUser, type: type });
+            socket.emit('call_user', { from: myUser, to: selectedUser });
             alert(selectedUser + " እየተደወለ ነው...");
         }
 
         socket.on('incoming_call', d => {
-            document.getElementById('caller-id').innerText = d.from + " እየደወለ ነው...";
-            document.getElementById('incoming-call').style.display = 'flex';
+            document.getElementById('caller-name').innerText = d.from + " እየደወለ ነው...";
+            document.getElementById('call-ui').style.display = 'flex';
         });
 
-        function endCall() { document.getElementById('incoming-call').style.display = 'none'; }
-        function acceptCall() { alert("ጥሪው ተገናኝቷል!"); endCall(); }
-        socket.on('chat_history', h => h.forEach(m => socket.on('chat_message', m)));
+        function endCall() { document.getElementById('call-ui').style.display = 'none'; }
+        function acceptCall() { alert("ጥሪ ተገናኝቷል!"); endCall(); }
     </script>
 </body>
 </html>
