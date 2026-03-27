@@ -3,86 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TETA SECURE - ደቡብ ኦሞ</title>
+    <title>TETA SECURE - Command Center</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0b141a; color: white; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        #auth-ui { background: #1f2c33; padding: 40px; border-radius: 15px; width: 320px; text-align: center; border: 1px solid #00a884; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0b141a; color: white; margin: 0; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+        #auth-ui { background: #1f2c33; padding: 40px; border-radius: 15px; width: 320px; text-align: center; align-self: center; border: 1px solid #00a884; }
         input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #2a3942; color: white; outline: none; }
-        .login-btn { background: #00a884; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .login-btn { background: #00a884; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; cursor: pointer; }
 
-        #main-app { display: none; flex-direction: column; height: 95vh; width: 100%; max-width: 450px; background: #111b21; border-radius: 15px; overflow: hidden; position: relative; border: 1px solid #222e35; }
+        #main-app { display: none; flex-direction: column; height: 100vh; width: 100%; max-width: 500px; background: #111b21; border: 1px solid #222e35; position: relative; }
         header { background: #202c33; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .header-title { font-weight: bold; color: #00a884; display: block; font-size: 16px; }
-        .call-btns { display: flex; gap: 15px; }
-        .call-btns i { color: #8696a0; cursor: pointer; font-size: 18px; }
-
-        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; background-color: #0b141a; }
-        .msg { max-width: 75%; padding: 8px 12px; border-radius: 12px; font-size: 15px; }
+        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background-color: #0b141a; }
+        
+        .msg { max-width: 80%; padding: 10px; border-radius: 10px; font-size: 15px; position: relative; }
         .sent { align-self: flex-end; background: #005c4b; }
         .received { align-self: flex-start; background: #202c33; }
+        .msg img { max-width: 100%; border-radius: 8px; margin-top: 5px; cursor: pointer; }
 
-        /* የጥሪ መቀበያ መስኮት (Incoming Call) */
-        #incoming-call-ui { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(11, 20, 26, 0.95); display: none; 
-            flex-direction: column; align-items: center; justify-content: center; z-index: 100; 
-        }
-        .call-animation { width: 100px; height: 100px; border-radius: 50%; background: #00a884; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 168, 132, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(0, 168, 132, 0); } 100% { transform: scale(1); } }
-        
-        .call-actions { display: flex; gap: 30px; margin-top: 40px; }
-        .accept-btn { background: #28a745; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .reject-btn { background: #dc3545; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        /* Conference UI */
+        #video-grid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 100; display: none; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; padding: 10px; }
+        video { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; background: #2a3942; }
 
-        #video-grid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; background: black; z-index: 50; flex-direction: column; }
-        video { width: 100%; height: 50%; object-fit: cover; }
-
-        .controls { display: flex; gap: 10px; padding: 12px; background: #202c33; }
-        #msgInput { flex: 1; padding: 10px 15px; border-radius: 25px; border: none; background: #2a3942; color: white; outline: none; }
+        .controls { display: flex; gap: 10px; padding: 15px; background: #202c33; align-items: center; }
+        #msgInput { flex: 1; padding: 12px; border-radius: 25px; border: none; background: #2a3942; color: white; outline: none; }
     </style>
 </head>
 <body>
 
     <div id="auth-ui">
-        <h2 style="color:#00a884;"><i class="fas fa-shield-halved"></i> TETA SECURE</h2>
+        <h2 style="color:#00a884;">🛡️ TETA SECURE</h2>
         <input id="username" placeholder="ሙሉ ስም">
         <input id="secure-key" type="password" placeholder="ሚስጥራዊ ቁልፍ">
-        <button class="login-btn" onclick="login()">ግባ (LOGIN)</button>
+        <button class="login-btn" onclick="login()">ግባ</button>
     </div>
 
     <div id="main-app">
         <header>
-            <div class="header-info">
-                <span class="header-title">🛡️ TETA HUB</span>
-                <span style="font-size: 10px; color: #8696a0;">🔒 End-to-End Encrypted</span>
-            </div>
-            <div class="call-btns">
-                <i class="fas fa-phone" onclick="makeCall('audio')"></i>
-                <i class="fas fa-video" onclick="makeCall('video')"></i>
+            <div><b style="color:#00a884;">🛡️ TETA HUB</b><br><small style="font-size: 10px; color:#8696a0;">🔒 Secure Network</small></div>
+            <div style="display:flex; gap:15px; color:#8696a0;">
+                <i class="fas fa-video" onclick="startCall()" style="cursor:pointer;"></i>
+                <i class="fas fa-phone" onclick="startCall()" style="cursor:pointer;"></i>
             </div>
         </header>
 
+        <div id="video-grid">
+            <video id="localVideo" autoplay muted></video>
+            <button onclick="endCall()" style="position:absolute; bottom:20px; left:50%; transform:translateX(-50%); background:#dc3545; color:white; border:none; padding:15px; border-radius:50%;"><i class="fas fa-phone-slash"></i></button>
+        </div>
+
         <div id="chat-box"></div>
 
-        <div id="incoming-call-ui">
-            <div class="call-animation"><i class="fas fa-user-shield fa-3x"></i></div>
-            <h3 id="caller-name">ጥሪ እየመጣ ነው...</h3>
-            <div class="call-actions">
-                <div class="accept-btn" onclick="answerCall()"><i class="fas fa-phone fa-lg"></i></div>
-                <div class="reject-btn" onclick="endCall()"><i class="fas fa-phone-slash fa-lg"></i></div>
-            </div>
-        </div>
-
-        <div id="video-grid">
-            <video id="remoteVideo" autoplay></video>
-            <video id="localVideo" autoplay muted style="height: 30%; border-top: 2px solid #00a884;"></video>
-            <button onclick="endCall()" style="background:#dc3545; color:white; padding:15px; border:none;">ጥሪውን አቋርጥ</button>
-        </div>
-
         <div class="controls">
+            <i class="fas fa-paperclip" style="color:#8696a0; cursor:pointer;" onclick="triggerFile()"></i>
+            <input type="file" id="fileInput" style="display:none" onchange="sendFile(this)">
             <input type="text" id="msgInput" placeholder="መልዕክት ጻፍ..." onkeypress="if(event.key==='Enter') send()">
-            <button onclick="send()" style="background:#00a884; border:none; border-radius:50%; width:40px; height:40px; color:white;"><i class="fas fa-paper-plane"></i></button>
+            <button onclick="send()" style="background:#00a884; border:none; width:40px; height:40px; border-radius:50%; color:white;"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
@@ -90,8 +65,6 @@
     <script>
         const socket = io();
         let myUser;
-        const ringtone = new Audio('https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3'); // የጥሪ ድምፅ
-        ringtone.loop = true;
 
         function login() {
             const name = document.getElementById('username').value;
@@ -107,59 +80,56 @@
             document.getElementById('main-app').style.display = 'flex';
         });
 
-        // ጥሪ ለመደወል
-        function makeCall(type) {
-            socket.emit('call_user', { from: myUser, type: type });
-            document.getElementById('video-grid').style.display = 'flex';
-            startMedia(type);
+        // ፋይል ለመላክ
+        function triggerFile() { document.getElementById('fileInput').click(); }
+        function sendFile(input) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                socket.emit('chat_message', { user: myUser, text: file.name, file: reader.result, fType: file.type });
+            };
         }
 
-        // ጥሪ ሲመጣ
-        socket.on('incoming_call', (data) => {
-            if (data.from !== myUser) {
-                document.getElementById('caller-name').innerText = data.from + " እየደወለ ነው...";
-                document.getElementById('incoming-call-ui').style.display = 'flex';
-                ringtone.play(); // ድምፅ ማሰማት ይጀምራል
-            }
-        });
-
-        function answerCall() {
-            ringtone.pause();
-            document.getElementById('incoming-call-ui').style.display = 'none';
-            document.getElementById('video-grid').style.display = 'flex';
-            startMedia('video');
+        // ቪዲዮ ኮንፈረንስ
+        async function startCall() {
+            document.getElementById('video-grid').style.display = 'grid';
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            document.getElementById('localVideo').srcObject = stream;
+            socket.emit('start_conference', { from: myUser });
         }
 
         function endCall() {
-            ringtone.pause();
-            document.getElementById('incoming-call-ui').style.display = 'none';
-            document.getElementById('video-grid').style.display = 'none';
-            if(localStream) localStream.getTracks().forEach(track => track.stop());
-        }
-
-        async function startMedia(type) {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                document.getElementById('localVideo').srcObject = localStream;
-            } catch (e) { console.error(e); }
+            location.reload(); // ለጊዜው ሪፍሬሽ በማድረግ ጥሪውን ይዘጋል
         }
 
         function send() {
-            const text = document.getElementById('msgInput').value;
-            if(text) {
-                socket.emit('chat_message', { user: myUser, text: text });
+            const txt = document.getElementById('msgInput').value;
+            if(txt) {
+                socket.emit('chat_message', { user: myUser, text: txt });
                 document.getElementById('msgInput').value = '';
             }
         }
 
-        socket.on('chat_message', d => {
+        function displayMsg(d) {
+            const box = document.getElementById('chat-box');
             const div = document.createElement('div');
             const isMe = d.user === myUser;
             div.className = `msg ${isMe ? 'sent' : 'received'}`;
-            div.innerHTML = isMe ? d.text : `<b>${d.user}</b><br>${d.text}`;
-            document.getElementById('chat-box').appendChild(div);
-            document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
-        });
+            
+            let content = d.text;
+            if(d.file) {
+                if(d.fType.startsWith('image/')) content = `<img src="${d.file}"><br><small>${d.text}</small>`;
+                else content = `<i class="fas fa-file"></i> <a href="${d.file}" download="${d.text}" style="color:white;">${d.text}</a>`;
+            }
+            div.innerHTML = isMe ? content : `<b>${d.user}</b><br>${content}`;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        socket.on('chat_message', d => displayMsg(d));
+        socket.on('chat_history', h => h.forEach(displayMsg));
+        socket.on('incoming_conference', d => alert(d.from + " የቪዲዮ ኮንፈረንስ ጀምሯል! ለመቀላቀል የቪዲዮ ምልክቱን ይጫኑ።"));
     </script>
 </body>
 </html>
