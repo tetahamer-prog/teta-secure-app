@@ -3,136 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TETA SECURE AI - v2.5.0</title>
+    <title>TETA SECURE PRO - ደቡብ ኦሞ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --bg: #0b141a; --side: #111b21; --header: #202c33; --primary: #00a884; --text: #e9edef; --muted: #8696a0; --sent: #005c4b; --received: #202c33; --ai-gold: #ffd700; }
-        .light-mode { --bg: #f0f2f5; --side: #ffffff; --header: #008069; --primary: #008069; --text: #111b21; --muted: #667781; --sent: #d9fdd3; --received: #ffffff; }
+        :root { 
+            --bg: #0b141a; --side: #111b21; --header: #202c33; --primary: #00a884; 
+            --text: #e9edef; --muted: #8696a0; --sent: #005c4b; --received: #202c33;
+        }
+        .light-mode {
+            --bg: #f0f2f5; --side: #ffffff; --header: #00a884; --primary: #075e54;
+            --text: #111b21; --muted: #667781; --sent: #d9fdd3; --received: #ffffff;
+        }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; transition: 0.3s; }
 
-        /* Sidebar */
+        /* Sidebar & Overlay */
         #sidebar { width: 300px; background: var(--side); border-right: 1px solid rgba(255,255,255,0.1); position: absolute; left: -300px; height: 100%; z-index: 1000; transition: 0.3s; display: flex; flex-direction: column; }
         #sidebar.active { left: 0; box-shadow: 5px 0 15px rgba(0,0,0,0.5); }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
-        .item { padding: 12px 20px; display: flex; align-items: center; gap: 20px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.03); }
 
-        /* AI Helper UI */
-        #ai-assistant { position: fixed; bottom: 80px; right: 20px; background: var(--header); border: 1px solid var(--ai-gold); padding: 10px; border-radius: 15px; display: none; width: 250px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); z-index: 500; }
-        .ai-btn { background: var(--ai-gold); border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; color: black; font-weight: bold; margin-top: 5px; }
+        /* Sidebar Header */
+        .side-head { padding: 30px 20px; background: var(--header); color: white; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .p-img { width: 60px; height: 60px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 10px; border: 2px solid white; }
 
-        /* Main App */
-        #main { flex: 1; display: none; flex-direction: column; }
-        header { background: var(--header); padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; }
-        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background-color: var(--bg); }
-        .m-bubble { max-width: 85%; padding: 10px; border-radius: 10px; font-size: 14px; position: relative; }
-        .sent { align-self: flex-end; background: var(--sent); }
-        .received { align-self: flex-start; background: var(--received); }
-        .ai-msg { background: #3c3c3c; border-left: 3px solid var(--ai-gold); }
+        /* Menu Items */
+        .menu-list { flex: 1; overflow-y: auto; padding: 10px 0; }
+        .item { padding: 12px 20px; display: flex; align-items: center; gap: 20px; cursor: pointer; transition: 0.2s; }
+        .item:hover { background: rgba(255,255,255,0.05); }
+        .item i { width: 20px; color: var(--muted); font-size: 18px; }
 
-        .input-area { background: var(--header); padding: 10px; display: flex; align-items: center; gap: 10px; }
-        #msg-in { flex: 1; background: var(--side); border: none; padding: 12px; border-radius: 20px; color: white; }
+        /* Main UI */
+        #main { flex: 1; display: none; flex-direction: column; height: 100vh; position: relative; }
+        header { background: var(--header); padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; height: 50px; }
+        
+        #user-bar { background: var(--side); display: flex; gap: 10px; padding: 10px; overflow-x: auto; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .u-card { min-width: 80px; text-align: center; background: rgba(255,255,255,0.03); padding: 8px; border-radius: 12px; cursor: pointer; border: 1.5px solid transparent; }
+        .u-card.active { border-color: var(--primary); background: rgba(0, 168, 132, 0.1); }
+        
+        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-blend-mode: overlay; background-color: var(--bg); }
+        .m-bubble { max-width: 85%; padding: 8px 12px; border-radius: 10px; font-size: 14.5px; line-height: 1.4; position: relative; }
+        .sent { align-self: flex-end; background: var(--sent); color: var(--text); }
+        .received { align-self: flex-start; background: var(--received); color: var(--text); }
+
+        .input-area { background: var(--header); padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
+        input[type="text"] { flex: 1; background: var(--side); border: none; padding: 12px 20px; border-radius: 25px; color: var(--text); outline: none; }
+        
+        #call-ui { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
-<body>
+<body id="app-body">
 
     <div class="overlay" onclick="toggleSidebar()"></div>
 
     <div id="sidebar">
-        <div style="padding: 25px; background: var(--header);">
-            <div style="width:50px; height:50px; border-radius:50%; background:var(--primary); display:flex; align-items:center; justify-content:center; font-size:20px;"><i class="fas fa-robot"></i></div>
+        <div class="side-head">
+            <div class="p-img"><i class="fas fa-user-shield"></i></div>
             <b id="side-username">ተጠቃሚ</b><br>
-            <small style="color:var(--primary)">TETA SECURE PRO v2.5</small>
+            <small style="color:var(--primary)">ኢትዮጵያ - ደቡብ ኦሞ</small>
         </div>
         <div class="menu-list">
-            <div class="item" onclick="toggleNight()"><i class="fas fa-adjust"></i> Night/Light Mode</div>
-            <div class="item"><i class="fas fa-language"></i> Language: 
-                <select onchange="changeLang(this.value)" style="background:none; color:var(--primary); border:none;">
-                    <option value="am">አማርኛ</option>
-                    <option value="en">English</option>
-                    <option value="or">Oromiffa</option>
-                    <option value="tg">ትግርኛ</option>
-                </select>
-            </div>
-            <div class="item" onclick="clearHistory()"><i class="fas fa-trash"></i> <span class="lang" data-am="ታሪክ አጽዳ" data-en="Clear History" data-or="Seenaa Haqaa" data-tg="ታሪኽ አጽርዮ">ታሪክ አጽዳ</span></div>
+            <div class="item" onclick="alert('Account Details Coming Soon')"><i class="fas fa-user-circle"></i> My Account</div>
+            <div class="item" onclick="toggleNightMode()"><i class="fas fa-moon"></i> Night Mode <span style="margin-left:auto; font-size:10px; color:var(--primary)">On/Off</span></div>
+            <div class="item" onclick="alert('Notifications Silenced')"><i class="fas fa-bell"></i> Notification Sound</div>
+            <div class="item" onclick="alert('Privacy Locked')"><i class="fas fa-shield-alt"></i> Privacy & Security</div>
+            <div class="item" onclick="alert('Chat Cleaned')"><i class="fas fa-broom"></i> Clear Chat History</div>
+            <div class="item" onclick="alert('Language: Amharic')"><i class="fas fa-language"></i> Language (አማርኛ)</div>
+            <div class="item" onclick="window.location.reload()"><i class="fas fa-sign-out-alt"></i> Logout</div>
         </div>
     </div>
 
     <div id="main">
         <header>
-            <i class="fas fa-bars" onclick="toggleSidebar()"></i>
-            <div style="text-align:center"><b>🛡️ TETA HUB <span style="color:var(--ai-gold)">AI</span></b></div>
-            <i class="fas fa-magic" onclick="toggleAI()" style="color:var(--ai-gold); cursor:pointer;"></i>
+            <i class="fas fa-bars" onclick="toggleSidebar()" style="cursor:pointer; font-size:20px;"></i>
+            <div style="text-align:center">
+                <b id="chat-title" style="color:var(--primary)">🛡️ TETA SECURE</b><br>
+                <small id="status-text" style="font-size:10px; color:var(--muted)">Public Group</small>
+            </div>
+            <div style="display:flex; gap:18px;">
+                <i class="fas fa-video" onclick="makeCall()" style="cursor:pointer"></i>
+                <i class="fas fa-ellipsis-v"></i>
+            </div>
         </header>
+
+        <div id="user-bar"></div>
 
         <div id="chat-box"></div>
 
-        <div id="ai-assistant">
-            <small style="color:var(--ai-gold)">✨ TETA AI ረዳት</small>
-            <div id="ai-suggestion" style="font-size:11px; margin:5px 0;">የጻፍከውን መልዕክት ላስተካክል?</div>
-            <button class="ai-btn" onclick="aiAction('fix')">ጽሁፍ አስተካክል</button>
-            <button class="ai-btn" onclick="aiAction('translate')">ተርጉም</button>
-        </div>
-
         <div class="input-area">
-            <i class="fas fa-paperclip" onclick="document.getElementById('file-in').click()"></i>
+            <i class="fas fa-smile" style="color:var(--muted); font-size:20px;"></i>
+            <i class="fas fa-paperclip" onclick="document.getElementById('file-in').click()" style="color:var(--muted); font-size:20px; cursor:pointer;"></i>
             <input type="file" id="file-in" style="display:none" onchange="sendFile(this)">
             <input type="text" id="msg-in" placeholder="መልዕክት..." onkeypress="if(event.key==='Enter') send()">
             <button onclick="send()" style="background:var(--primary); border:none; width:40px; height:40px; border-radius:50%; color:white;"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
-    <div id="auth" style="margin:auto; width:280px; padding:30px; background:var(--side); border-radius:15px; text-align:center; border:1px solid var(--primary);">
-        <h3 style="color:var(--primary)">TETA AI SECURE</h3>
-        <input id="u-name" placeholder="ስም" type="text" style="width:90%; padding:10px; margin-bottom:10px; background:#2a3942; border:none; color:white;">
-        <input id="u-key" placeholder="ቁልፍ" type="password" style="width:90%; padding:10px; margin-bottom:20px; background:#2a3942; border:none; color:white;">
-        <button onclick="login()" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:8px;">ግባ</button>
+    <div id="call-ui">
+        <div style="width:120px; height:120px; border-radius:50%; background:var(--primary); display:flex; align-items:center; justify-content:center; margin-bottom:30px; animation:pulse 1s infinite;"><i class="fas fa-phone fa-3x" style="color:white"></i></div>
+        <h2 id="caller-name">ጥሪ እየመጣ ነው...</h2>
+        <div style="display:flex; gap:40px; margin-top:20px;">
+            <button onclick="endCall()" style="background:#dc3545; color:white; border:none; padding:20px; border-radius:50%; cursor:pointer;"><i class="fas fa-phone-slash fa-lg"></i></button>
+            <button onclick="acceptCall()" style="background:#28a745; color:white; border:none; padding:20px; border-radius:50%; cursor:pointer;"><i class="fas fa-check fa-lg"></i></button>
+        </div>
+    </div>
+
+    <div id="auth" style="margin:auto; width:320px; background:#1f2c33; padding:40px; border-radius:20px; text-align:center; border:1px solid var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <h2 style="color:var(--primary); margin-bottom:30px;">🛡️ TETA SECURE</h2>
+        <input id="u-name" placeholder="ሙሉ ስም" type="text" style="width:100%; padding:12px; margin-bottom:15px; background:#2a3942; border:none; color:white; border-radius:8px;">
+        <input id="u-key" placeholder="ሚስጥራዊ ቁልፍ" type="password" style="width:100%; padding:12px; margin-bottom:20px; background:#2a3942; border:none; color:white; border-radius:8px;">
+        <button onclick="login()" style="width:100%; padding:14px; background:var(--primary); border:none; color:white; border-radius:8px; cursor:pointer; font-weight:bold;">ግባ (LOGIN)</button>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        let myUser, currentLang = 'am';
+        let myUser, selectedUser = null;
 
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
-        function toggleNight() { document.body.classList.toggle('light-mode'); }
-        function toggleAI() { 
-            const panel = document.getElementById('ai-assistant');
-            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        function toggleSidebar() { 
+            const s = document.getElementById('sidebar');
+            const o = document.querySelector('.overlay');
+            s.classList.toggle('active');
+            o.style.display = s.classList.contains('active') ? 'block' : 'none';
         }
 
-        function changeLang(val) {
-            currentLang = val;
-            document.querySelectorAll('.lang').forEach(el => {
-                el.innerText = el.getAttribute('data-' + val);
-            });
-            document.getElementById('msg-in').placeholder = (val === 'am') ? 'መልዕክት...' : (val === 'or') ? 'Ergaa...' : (val === 'tg') ? 'መልእኽቲ...' : 'Message...';
-        }
-
-        // AI Logic (ለጊዜው በ Simulation ይሰራል - ለወደፊቱ ከ OpenAI/Gemini API ጋር ይገናኛል)
-        function aiAction(type) {
-            const input = document.getElementById('msg-in');
-            if(!input.value) return alert("መጀመሪያ መልዕክት ጻፍ!");
-            
-            if(type === 'fix') {
-                input.value = "AI የተስተካከለ: " + input.value + " (በስርዓቱ የተረጋገጠ ✅)";
-            } else if(type === 'translate') {
-                const translations = {
-                    'or': 'Ergaa keessan gara Oromiffaatti hiikameera.',
-                    'tg': 'መልእኽትኹም ናብ ትግርኛ ተተርጉሙ እዩ።',
-                    'en': 'Your message has been translated to English.'
-                };
-                input.value = translations[currentLang] || "Translated: " + input.value;
-            }
-            toggleAI();
+        function toggleNightMode() {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            alert(isLight ? "Light Mode በርቷል" : "Night Mode በርቷል");
         }
 
         function login() {
             const name = document.getElementById('u-name').value;
             const key = document.getElementById('u-key').value;
-            if(name && key === "OMO_SAFETY_2026_SECURE") {
+            if(name && key) {
                 myUser = name;
                 socket.emit('verify_secure_access', { username: name, key: key });
-            } else { alert("ስህተት!"); }
+            }
         }
 
         socket.on('login_success', () => {
@@ -141,10 +146,29 @@
             document.getElementById('side-username').innerText = myUser;
         });
 
+        socket.on('user_status', d => {
+            const bar = document.getElementById('user-bar');
+            bar.innerHTML = Object.keys(d.allUsers).map(u => `
+                <div class="u-card ${selectedUser === u ? 'active' : ''}" onclick="selectUser('${u}')">
+                    <b style="font-size:12px; display:block;">${u === myUser ? 'እኔ' : u}</b>
+                    <span style="font-size:9px; color:${d.allUsers[u].lastSeen === 'Online' ? '#00a884' : '#8696a0'}">
+                        ${d.allUsers[u].lastSeen}
+                    </span>
+                </div>
+            `).join('');
+        });
+
+        function selectUser(u) {
+            selectedUser = (u === myUser) ? null : u;
+            document.getElementById('chat-title').innerText = selectedUser ? selectedUser : "🛡️ TETA SECURE";
+            document.getElementById('status-text').innerText = selectedUser ? "Private Message" : "Public Group";
+            document.querySelectorAll('.u-card').forEach(c => c.classList.remove('active'));
+        }
+
         function send() {
             const txt = document.getElementById('msg-in').value;
             if(txt) {
-                socket.emit('chat_message', { user: myUser, text: txt, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+                socket.emit('chat_message', { user: myUser, text: txt, to: selectedUser, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
                 document.getElementById('msg-in').value = '';
             }
         }
@@ -153,30 +177,37 @@
             const file = input.files[0];
             const reader = new FileReader();
             reader.readAsDataURL(file);
-            reader.onload = () => {
-                socket.emit('chat_message', { 
-                    user: myUser, text: "AI Analysis: ፎቶ ተልኳል 📸", 
-                    file: reader.result, fType: file.type 
-                });
-                // AI ፎቶውን ሲያይ የሚሰጠው ምላሽ (Simulation)
-                setTimeout(() => {
-                    addMessage({ user: "TETA AI ✨", text: "ይህ ፎቶ በደህንነት ሲስተማችን ተመርምሯል። ምንም አይነት ስጋት የለበትም። ✅", isAI: true });
-                }, 1500);
-            };
+            reader.onload = () => socket.emit('chat_message', { user: myUser, text: file.name, file: reader.result, fType: file.type, to: selectedUser });
         }
 
-        function addMessage(d) {
+        socket.on('chat_message', d => {
             const box = document.getElementById('chat-box');
             const div = document.createElement('div');
-            div.className = `m-bubble ${d.user === myUser ? 'sent' : 'received'} ${d.isAI ? 'ai-msg' : ''}`;
+            const isMe = d.user === myUser;
+            div.className = `m-bubble ${isMe ? 'sent' : 'received'}`;
             let content = d.text;
-            if(d.file) content = `<img src="${d.file}" style="max-width:100%; border-radius:8px;"><br>` + content;
+            if(d.file) {
+                if(d.fType.startsWith('image/')) content = `<img src="${d.file}" style="max-width:100%; border-radius:8px;"><br><small>${d.text}</small>`;
+                else content = `<i class="fas fa-file"></i> <a href="${d.file}" download="${d.text}" style="color:inherit">${d.text}</a>`;
+            }
             div.innerHTML = `<b>${d.user}</b><br>${content}<br><small style="font-size:9px; float:right; opacity:0.6">${d.time || ''}</small>`;
             box.appendChild(div);
             box.scrollTop = box.scrollHeight;
+        });
+
+        function makeCall() {
+            if(!selectedUser) return alert("እባክዎ መጀመሪያ የሚደውሉለትን ሰው ከላይ ይምረጡ!");
+            socket.emit('call_user', { from: myUser, to: selectedUser });
+            alert(selectedUser + " እየተደወለ ነው...");
         }
 
-        socket.on('chat_message', d => addMessage(d));
+        socket.on('incoming_call', d => {
+            document.getElementById('caller-name').innerText = d.from + " እየደወለ ነው...";
+            document.getElementById('call-ui').style.display = 'flex';
+        });
+
+        function endCall() { document.getElementById('call-ui').style.display = 'none'; }
+        function acceptCall() { alert("ጥሪ ተገናኝቷል!"); endCall(); }
     </script>
 </body>
 </html>
