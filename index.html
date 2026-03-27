@@ -3,36 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TETA SECURE - የደቡብ ኦሞ ሰላምና ጸጥታ</title>
+    <title>TETA SECURE - ደቡብ ኦሞ</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #0b141a; color: white; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        #auth-ui { background: #1f2c33; padding: 40px; border-radius: 15px; width: 320px; text-align: center; border: 1px solid #00a884; box-shadow: 0 0 20px rgba(0, 168, 132, 0.2); }
-        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #2a3942; color: white; outline: none; border-bottom: 2px solid transparent; }
-        input:focus { border-bottom: 2px solid #00a884; }
-        button { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: #00a884; color: white; width: 100%; margin-top: 10px; }
-        #main-app { display: none; flex-direction: column; height: 95vh; width: 100%; max-width: 500px; background: #111b21; border-radius: 15px; overflow: hidden; }
+        
+        /* Login UI */
+        #auth-ui { background: #1f2c33; padding: 40px; border-radius: 15px; width: 320px; text-align: center; border: 1px solid #00a884; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #2a3942; color: white; outline: none; }
+        .login-btn { background: #00a884; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+        /* Main App UI */
+        #main-app { display: none; flex-direction: column; height: 95vh; width: 100%; max-width: 450px; background: #111b21; border-radius: 15px; overflow: hidden; position: relative; }
         header { background: #202c33; padding: 15px; text-align: center; font-weight: bold; color: #00a884; border-bottom: 1px solid #222e35; }
-        #chat-box { flex: 1; overflow-y: auto; padding: 20px; background-color: #0b141a; }
-        .controls { display: flex; gap: 10px; padding: 15px; background: #202c33; }
-        .msg-bubble { background: #202c33; padding: 10px 15px; border-radius: 10px; margin-bottom: 10px; border-left: 3px solid #00a884; }
+        
+        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; background-color: #0b141a; }
+        
+        /* Chat Bubbles */
+        .msg { max-width: 75%; padding: 8px 12px; border-radius: 12px; font-size: 15px; position: relative; line-height: 1.4; }
+        .sent { align-self: flex-end; background: #005c4b; color: white; border-bottom-right-radius: 2px; }
+        .received { align-self: flex-start; background: #202c33; color: white; border-bottom-left-radius: 2px; }
+        .sender-name { font-size: 11px; font-weight: bold; color: #00a884; display: block; margin-bottom: 2px; }
+
+        .controls { display: flex; gap: 8px; padding: 12px; background: #202c33; }
+        #msgInput { flex: 1; padding: 10px 15px; border-radius: 20px; border: none; background: #2a3942; color: white; }
+        .send-btn { background: #00a884; color: white; border: none; padding: 10px 18px; border-radius: 50%; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div id="auth-ui">
         <h2 style="color:#00a884;">🛡️ TETA SECURE</h2>
-        <p style="font-size: 13px; color: #aebac1;">የደቡብ ኦሞ ሰላምና ጸጥታ መገናኛ</p>
         <input id="username" placeholder="ሙሉ ስም">
         <input id="secure-key" type="password" placeholder="ሚስጥራዊ የደህንነት ቁልፍ">
-        <button onclick="login()">ግባ (LOGIN)</button>
+        <button class="login-btn" onclick="login()">ግባ (LOGIN)</button>
     </div>
 
     <div id="main-app">
-        <header>🛡️ TETA HUB - ደቡብ ኦሞ</header>
+        <header>🛡️ TETA HUB - ደቡብ ኦሞ ሰላምና ጸጥታ</header>
         <div id="chat-box"></div>
         <div class="controls">
-            <input type="text" id="msgInput" placeholder="መልዕክት ጻፍ...">
-            <button onclick="send()" style="width:70px;">ላክ</button>
+            <input type="text" id="msgInput" placeholder="መልዕክት ጻፍ..." onkeypress="if(event.key==='Enter') send()">
+            <button class="send-btn" onclick="send()">➤</button>
         </div>
     </div>
 
@@ -65,13 +76,21 @@
             }
         }
 
-        socket.on('chat_message', d => {
+        function displayMsg(d) {
+            const chatBox = document.getElementById('chat-box');
             const div = document.createElement('div');
-            div.className = "msg-bubble";
-            div.innerHTML = `<b>${d.user}:</b> ${d.text}`;
-            document.getElementById('chat-box').appendChild(div);
-            document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
-        });
+            const isMe = d.user === myUser;
+            
+            div.className = `msg ${isMe ? 'sent' : 'received'}`;
+            const senderHtml = isMe ? "" : `<span class="sender-name">${d.user}</span>`;
+            div.innerHTML = `${senderHtml}${d.text}`;
+            
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        socket.on('chat_message', d => displayMsg(d));
+        socket.on('chat_history', h => h.forEach(displayMsg));
     </script>
 </body>
 </html>
