@@ -6,32 +6,25 @@
     <title>TETA SECURE - የደቡብ ኦሞ ሰላምና ጸጥታ</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #0b141a; color: white; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        #auth-ui { background: #1f2c33; padding: 40px; border-radius: 15px; width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #00a884; }
-        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #2a3942; color: white; font-size: 16px; outline: none; }
-        button { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: #00a884; color: white; width: 100%; transition: 0.3s; margin-top: 10px; }
-        button:hover { background: #008f6f; }
+        #auth-ui { background: #1f2c33; padding: 40px; border-radius: 15px; width: 320px; text-align: center; border: 1px solid #00a884; box-shadow: 0 0 20px rgba(0, 168, 132, 0.2); }
+        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #2a3942; color: white; outline: none; border-bottom: 2px solid transparent; }
+        input:focus { border-bottom: 2px solid #00a884; }
+        button { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: #00a884; color: white; width: 100%; margin-top: 10px; }
         #main-app { display: none; flex-direction: column; height: 95vh; width: 100%; max-width: 500px; background: #111b21; border-radius: 15px; overflow: hidden; }
         header { background: #202c33; padding: 15px; text-align: center; font-weight: bold; color: #00a884; border-bottom: 1px solid #222e35; }
         #chat-box { flex: 1; overflow-y: auto; padding: 20px; background-color: #0b141a; }
         .controls { display: flex; gap: 10px; padding: 15px; background: #202c33; }
-        .msg-bubble { background: #202c33; padding: 10px 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #2a3942; }
+        .msg-bubble { background: #202c33; padding: 10px 15px; border-radius: 10px; margin-bottom: 10px; border-left: 3px solid #00a884; }
     </style>
 </head>
 <body>
 
     <div id="auth-ui">
         <h2 style="color:#00a884;">🛡️ TETA SECURE</h2>
-        <div id="login-form">
-            <input id="username" placeholder="ሙሉ ስም">
-            <input id="phone" placeholder="ስልክ ቁጥር (ምሳሌ፡ +2519...)">
-            <button onclick="sendOTP()">ኮድ ላክ (Send OTP)</button>
-        </div>
-        
-        <div id="otp-form" style="display:none;">
-            <p style="color: #aebac1;">ሚስጥራዊ ኮዱን ያስገቡ</p>
-            <input id="otp-input" type="number" placeholder="6 አሃዝ ኮድ">
-            <button onclick="verifyOTP()" style="background:#28a745;">አረጋግጥ (Verify)</button>
-        </div>
+        <p style="font-size: 13px; color: #aebac1;">የደቡብ ኦሞ ሰላምና ጸጥታ መገናኛ</p>
+        <input id="username" placeholder="ሙሉ ስም">
+        <input id="secure-key" type="password" placeholder="ሚስጥራዊ የደህንነት ቁልፍ">
+        <button onclick="login()">ግባ (LOGIN)</button>
     </div>
 
     <div id="main-app">
@@ -46,29 +39,18 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        let myUser, myPhone;
+        let myUser;
 
-        function sendOTP() {
-            myUser = document.getElementById('username').value;
-            myPhone = document.getElementById('phone').value;
-            if(myUser && myPhone) {
-                socket.emit('send_otp', { phone: myPhone });
-                alert("ኮድ ወደ ስልክህ እየተላከ ነው...");
-                document.getElementById('login-form').style.display = 'none';
-                document.getElementById('otp-form').style.display = 'block';
-            } else { alert("እባክዎ ስም እና ስልክ ያስገቡ!"); }
+        function login() {
+            const name = document.getElementById('username').value;
+            const key = document.getElementById('secure-key').value;
+            if(name && key) {
+                socket.emit('verify_secure_access', { username: name, key: key });
+            } else { alert("እባክዎ መረጃዎችን ይሙሉ!"); }
         }
-
-        function verifyOTP() {
-            const code = document.getElementById('otp-input').value;
-            socket.emit('verify_otp', { phone: myPhone, code: code, username: myUser });
-        }
-
-        socket.on('otp_sent', d => {
-            if(!d.success) alert("ኮድ መላክ አልተቻለም፡ " + d.error);
-        });
 
         socket.on('login_success', d => {
+            myUser = d.user;
             document.getElementById('auth-ui').style.display = 'none';
             document.getElementById('main-app').style.display = 'flex';
         });
@@ -88,6 +70,7 @@
             div.className = "msg-bubble";
             div.innerHTML = `<b>${d.user}:</b> ${d.text}`;
             document.getElementById('chat-box').appendChild(div);
+            document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
         });
     </script>
 </body>
