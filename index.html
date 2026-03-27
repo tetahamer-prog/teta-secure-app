@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TETA ULTIMATE - Advanced Features</title>
+    <title>TETA ULTIMATE - Photo Sharing</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --tg-header: #527da3; --tg-bg: #e6eff5; --tg-sent: #effdde; --tg-primary: #2481cc; --muted: #707579; }
@@ -15,32 +15,30 @@
         #chat-list-column { width: 320px; background: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; flex-shrink: 0; }
         #main-chat { flex: 1; display: flex; flex-direction: column; position: relative; }
 
-        /* UI Elements */
-        .search-row { padding: 10px; display: flex; align-items: center; gap: 15px; }
-        .search-input { flex: 1; padding: 8px 15px; background: #f1f1f1; border: none; border-radius: 20px; outline: none; }
+        /* Stories Bar */
         #story-bar { display: flex; gap: 10px; padding: 10px; overflow-x: auto; border-bottom: 1px solid #eee; background: white; min-height: 75px; }
         .st-circle { width: 55px; height: 55px; border-radius: 50%; border: 2px solid var(--tg-primary); flex-shrink: 0; padding: 2px; cursor: pointer; }
         .st-circle img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 
+        /* Header & Chat Box */
         header { background: var(--tg-header); color: white; padding: 10px 15px; display: flex; align-items: center; gap: 15px; }
         #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
         
-        .msg { max-width: 75%; padding: 8px 12px; border-radius: 10px; font-size: 14.5px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); position: relative; }
+        /* Messages & Ticks */
+        .msg { max-width: 75%; padding: 8px 12px; border-radius: 10px; font-size: 14.5px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); position: relative; word-wrap: break-word; }
         .sent { align-self: flex-end; background: var(--tg-sent); border-bottom-right-radius: 2px; padding-right: 35px; }
         .received { align-self: flex-start; background: white; border-bottom-left-radius: 2px; }
         .tick { position: absolute; bottom: 4px; right: 8px; font-size: 10px; color: #4caf50; }
+        .chat-img { max-width: 100%; border-radius: 8px; margin-top: 5px; display: block; }
 
-        /* Contacts Overlay */
+        /* Overlays */
         #contacts-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 3000; flex-direction: column; }
-        .contact-header { background: var(--tg-header); color: white; padding: 15px; display: flex; align-items: center; gap: 20px; }
-
-        /* Call Overlay */
         #call-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b141a; z-index: 4000; flex-direction: column; align-items: center; justify-content: center; color: white; }
-        .c-btn { width: 65px; height: 65px; border-radius: 50%; border: none; font-size: 24px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-
+        
         .menu-item { padding: 15px 20px; display: flex; align-items: center; gap: 20px; cursor: pointer; }
         .chat-item { padding: 12px 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-bottom: 1px solid #f9f9f9; }
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 1500; }
+        .input-bar { background: white; padding: 10px; display: flex; align-items: center; gap: 15px; }
     </style>
 </head>
 <body>
@@ -84,26 +82,23 @@
             <i class="fas fa-video" onclick="startCall('video')" style="cursor:pointer;"></i>
         </header>
         <div id="chat-box"></div>
-        <div style="background: white; padding: 10px; display: flex; align-items: center; gap: 10px;">
+        
+        <div class="input-bar">
+            <i class="fas fa-paperclip" onclick="document.getElementById('img-send').click()" style="color:var(--muted); font-size:20px; cursor:pointer;"></i>
+            <input type="file" id="img-send" style="display:none" accept="image/*" onchange="sendImage(this)">
             <input type="text" id="msg-in" placeholder="Message" style="flex:1; border:none; outline:none;" onkeypress="if(event.key==='Enter') send()">
-            <i class="fas fa-paper-plane" onclick="send()" style="color:var(--tg-primary); cursor:pointer;"></i>
+            <i class="fas fa-paper-plane" onclick="send()" style="color:var(--tg-primary); font-size:22px; cursor:pointer;"></i>
         </div>
     </div>
 
     <div id="contacts-overlay">
-        <div class="contact-header">
+        <div style="background:var(--tg-header); color:white; padding:15px; display:flex; gap:20px; align-items:center;">
             <i class="fas fa-arrow-left" onclick="hideContacts()" style="cursor:pointer;"></i>
             <b>Contacts</b>
         </div>
-        <div style="overflow-y:auto; flex:1;">
-            <div class="chat-item" onclick="selectChat('አቤል (Abel)', 'A'); hideContacts();">
-                <div style="width:45px; height:45px; border-radius:50%; background:#e67e22; color:white; display:flex; align-items:center; justify-content:center;">A</div>
-                <div><b>አቤል (Abel)</b><br><small class="muted">online</small></div>
-            </div>
-            <div class="chat-item" onclick="selectChat('ሣራ (Sara)', 'S'); hideContacts();">
-                <div style="width:45px; height:45px; border-radius:50%; background:#9b59b6; color:white; display:flex; align-items:center; justify-content:center;">S</div>
-                <div><b>ሣራ (Sara)</b><br><small class="muted">last seen 5 min ago</small></div>
-            </div>
+        <div class="chat-item" onclick="selectChat('አቤል (Abel)', 'A'); hideContacts();">
+            <div style="width:45px; height:45px; border-radius:50%; background:#e67e22; color:white; display:flex; align-items:center; justify-content:center;">A</div>
+            <div><b>አቤል (Abel)</b><br><small class="muted">online</small></div>
         </div>
     </div>
 
@@ -111,7 +106,7 @@
         <video id="rv" autoplay playsinline style="width:100%; height:100%; object-fit:cover; position:absolute; display:none;"></video>
         <video id="lv" autoplay playsinline muted style="width:100px; height:140px; position:absolute; top:20px; right:20px; border:2px solid white; display:none;"></video>
         <h2 id="cn">Calling...</h2>
-        <div class="call-tools"><button class="c-btn" style="background:#ff3b30;" onclick="endCall()"><i class="fas fa-phone-slash"></i></button></div>
+        <button style="width:65px; height:65px; border-radius:50%; background:#ff3b30; border:none; color:white; font-size:24px;" onclick="endCall()"><i class="fas fa-phone-slash"></i></button>
     </div>
 
     <audio id="ring" loop src="https://search66.com/files/ringtone/2021/08/nokia_tune.mp3"></audio>
@@ -126,10 +121,52 @@
         function showContacts() { document.getElementById('contacts-overlay').style.display = 'flex'; closeSidebar(); }
         function hideContacts() { document.getElementById('contacts-overlay').style.display = 'none'; }
 
-        function selectChat(n, i) { 
-            document.getElementById('h-nm').innerText = n; 
-            document.getElementById('h-av').innerText = i; 
-            document.getElementById('chat-box').innerHTML = ""; 
+        // Send Text Message
+        function send() {
+            const i = document.getElementById('msg-in');
+            if(i.value.trim()) { socket.emit('chat_message', { user: myName, text: i.value, type: 'text' }); i.value=''; }
+        }
+
+        // Send Image Message
+        function sendImage(input) {
+            if(input.files && input.files[0]) {
+                const r = new FileReader();
+                r.onload = e => {
+                    socket.emit('chat_message', { user: myName, img: e.target.result, type: 'image' });
+                };
+                r.readAsDataURL(input.files[0]);
+            }
+        }
+
+        socket.on('chat_message', d => {
+            const box = document.getElementById('chat-box');
+            const div = document.createElement('div');
+            const isMe = d.user === myName;
+            div.className = `msg ${isMe ? 'sent' : 'received'}`;
+            
+            let content = `<b>${d.user}</b><br>`;
+            if(d.type === 'image') {
+                content += `<img src="${d.img}" class="chat-img">`;
+            } else {
+                content += d.text;
+            }
+            if(isMe) content += `<span class="tick">✓✓</span>`;
+            
+            div.innerHTML = content;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        });
+
+        // Other Logic (Stories, Calls, Login)
+        function uploadStory(input) {
+            if(input.files && input.files[0]) {
+                const r = new FileReader();
+                r.onload = e => {
+                    const d = document.createElement('div'); d.className='st-circle'; d.innerHTML=`<img src="${e.target.result}">`;
+                    document.getElementById('story-list').prepend(d);
+                };
+                r.readAsDataURL(input.files[0]);
+            }
         }
 
         async function startCall(t) {
@@ -147,34 +184,6 @@
         }
         function endCall() { if(stream) stream.getTracks().forEach(t=>t.stop()); document.getElementById('ring').pause(); document.getElementById('call-overlay').style.display='none'; }
 
-        function send() {
-            const i = document.getElementById('msg-in');
-            if(i.value.trim()) { socket.emit('chat_message', { user: myName, text: i.value }); i.value=''; }
-        }
-
-        socket.on('chat_message', d => {
-            const box = document.getElementById('chat-box');
-            const div = document.createElement('div');
-            const isMe = d.user === myName;
-            div.className = `msg ${isMe ? 'sent' : 'received'}`;
-            // ቲክ ማሳያ (✓✓)
-            const tickHtml = isMe ? `<span class="tick">✓✓</span>` : "";
-            div.innerHTML = `<b>${d.user}</b><br>${d.text}${tickHtml}`;
-            box.appendChild(div);
-            box.scrollTop = box.scrollHeight;
-        });
-
-        function uploadStory(input) {
-            if(input.files && input.files[0]) {
-                const r = new FileReader();
-                r.onload = e => {
-                    const d = document.createElement('div'); d.className='st-circle'; d.innerHTML=`<img src="${e.target.result}">`;
-                    document.getElementById('story-list').prepend(d);
-                };
-                r.readAsDataURL(input.files[0]);
-            }
-        }
-
         function login() {
             const u = document.getElementById('u-n').value;
             const k = document.getElementById('u-k').value;
@@ -184,6 +193,7 @@
                 document.getElementById('side-p').innerText = u.charAt(0).toUpperCase();
             } else { alert("Error!"); }
         }
+        function selectChat(n, i) { document.getElementById('h-nm').innerText = n; document.getElementById('h-av').innerText = i; document.getElementById('chat-box').innerHTML = ""; }
     </script>
 
     <div id="auth" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; align-items:center; justify-content:center; z-index:5000;">
@@ -192,7 +202,7 @@
             <h2>TETA SECURE</h2>
             <input id="u-n" placeholder="Name" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:5px;">
             <input id="u-k" placeholder="Key" type="password" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:5px;">
-            <button onclick="login()" style="width:100%; padding:10px; background:var(--tg-primary); color:white; border:none; border-radius:5px; cursor:pointer;">LOGIN</button>
+            <button onclick="login()" style="width:100%; padding:10px; background:var(--tg-primary); color:white; border:none; border-radius:5px;">LOGIN</button>
         </div>
     </div>
 </body>
