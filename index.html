@@ -3,105 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TETA BRAND - Chat & Call</title>
+    <title>TETA BRAND - Ultimate</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            margin: 0;
-            background-color: #f0f2f5;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-        header {
-            background-color: #2481cc;
-            color: white;
-            padding: 10px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-        /* የቪዲዮ ጥሪ ክፍል (ከላይ በትንሹ እንዲታይ) */
-        .call-section {
-            background: #000;
-            height: 30vh;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            border-bottom: 2px solid #2481cc;
-        }
-        video { width: 100%; height: 100%; object-fit: cover; }
-        #localVideo {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            width: 80px;
-            height: 110px;
-            border: 1px solid white;
-            border-radius: 5px;
-        }
-        /* የቻት ክፍል (ከስር እንዲሆን) */
-        .chat-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            padding: 10px;
-        }
-        .controls {
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            background: #fff;
-        }
-        button {
-            padding: 8px 20px;
-            border-radius: 20px;
-            border: none;
-            color: white;
-            font-weight: bold;
-        }
-        .btn-call { background-color: #28a745; }
-        .btn-end { background-color: #dc3545; }
+        :root { --tg-header: #2481cc; --tg-bg: #e6eff5; --tg-sent: #effdde; --tg-primary: #2481cc; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; background: var(--tg-bg); }
+        
+        /* Sidebar */
+        #sidebar { width: 280px; background: white; position: fixed; left: -280px; height: 100%; transition: 0.3s; z-index: 2000; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
+        #sidebar.active { left: 0; }
+        #chat-list { width: 320px; background: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; }
+        @media (max-width: 768px) { #chat-list { display: none; } }
+
+        /* Main Chat */
+        #main { flex: 1; display: flex; flex-direction: column; width: 100%; }
+        header { background: var(--tg-header); color: white; padding: 10px 15px; display: flex; align-items: center; gap: 15px; }
+        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; background-size: cover; }
+        
+        /* Messages */
+        .msg { max-width: 75%; padding: 10px; border-radius: 12px; font-size: 14.5px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .sent { align-self: flex-end; background: var(--tg-sent); }
+        .received { align-self: flex-start; background: white; }
+
+        /* Call Overlay */
+        #call-ui { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5000; background: #000; flex-direction: column; align-items: center; justify-content: center; }
+        video { width: 100%; height: 100%; object-fit: cover; position: absolute; }
+        #localV { width: 100px; height: 150px; position: absolute; top: 20px; right: 20px; border: 2px solid #fff; border-radius: 10px; z-index: 5001; }
+        .controls { position: absolute; bottom: 40px; display: flex; gap: 30px; z-index: 5002; }
+        .c-btn { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; color: white; }
+
+        .input-bar { background: white; padding: 10px; display: flex; align-items: center; gap: 15px; border-top: 1px solid #ddd; }
+        #auth { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f0f2f5; display: flex; align-items: center; justify-content: center; z-index: 9000; }
     </style>
 </head>
 <body>
 
-<header>TETA BRAND</header>
+    <div id="sidebar">
+        <div style="background: var(--tg-header); padding: 30px 20px; color: white;"><b>ተክለማርያም</b></div>
+        <div style="padding:15px; cursor:pointer;" onclick="alert('Contacts Coming Soon')"><i class="fas fa-user"></i> Contacts</div>
+        <div style="padding:15px; cursor:pointer;" onclick="document.getElementById('w-up').click()"><i class="fas fa-image"></i> Wallpaper</div>
+        <input type="file" id="w-up" style="display:none" onchange="changeW(this)">
+    </div>
 
-<div class="call-section">
-    <video id="remoteVideo" autoplay playsinline></video>
-    <video id="localVideo" autoplay playsinline muted></video>
-</div>
+    <div id="main">
+        <header>
+            <i class="fas fa-bars" onclick="toggleS()" style="cursor:pointer;"></i>
+            <div style="flex:1"><b>TETA AI ✨</b></div>
+            <i class="fas fa-video" onclick="call(true)" style="cursor:pointer;"></i>
+            <i class="fas fa-phone" onclick="call(false)" style="margin-left:20px; cursor:pointer;"></i>
+        </header>
+        <div id="chat-box"></div>
+        <div class="input-bar">
+            <input type="text" id="m-in" placeholder="Message..." style="flex:1; border:none; outline:none;" onkeypress="if(event.key==='Enter') send()">
+            <i class="fas fa-paper-plane" onclick="send()" style="color:var(--tg-primary); cursor:pointer;"></i>
+        </div>
+    </div>
 
-<div class="controls">
-    <button class="btn-call" onclick="startCall()">Start Call</button>
-    <button class="btn-end" onclick="endCall()">End</button>
-</div>
+    <div id="call-ui">
+        <video id="remoteV" autoplay playsinline></video>
+        <video id="localV" autoplay playsinline muted></video>
+        <div class="controls">
+            <div class="c-btn" style="background:#f44336;" onclick="hang()"><i class="fas fa-phone-slash"></i></div>
+        </div>
+        <audio id="ring" loop src="https://search66.com/files/ringtone/2021/08/nokia_tune.mp3"></audio>
+    </div>
 
-<div class="chat-section">
-    <p style="text-align:center; color:#888;">Chat system is active below the call window.</p>
-    <div id="chat-messages"></div>
-</div>
+    <div id="auth">
+        <div style="background:white; padding:40px; border-radius:20px; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,0.1);">
+            <h2>TETA BRAND</h2>
+            <input id="un" placeholder="Username" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+            <input id="uk" placeholder="Key" type="password" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+            <button onclick="login()" style="width:100%; padding:10px; background:var(--tg-primary); color:white; border:none; border-radius:8px; font-weight:bold;">LOG IN</button>
+        </div>
+    </div>
 
-<script>
-    let localStream;
-    async function startCall() {
-        try {
-            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            document.getElementById('localVideo').srcObject = localStream;
-        } catch (e) {
-            alert("ካሜራ ለመክፈት አልተቻለም። እባክህ Permission ስጥ።");
+    <script>
+        let user, stream;
+        const enc = (t) => btoa(unescape(encodeURIComponent(t)));
+        const dec = (t) => decodeURIComponent(escape(atob(t)));
+        let msgs = JSON.parse(localStorage.getItem('teta_msgs') || '[]');
+
+        window.onload = () => {
+            const w = localStorage.getItem('teta_w');
+            if(w) document.getElementById('chat-box').style.backgroundImage = `url(${w})`;
+            msgs.forEach(m => show({...m, t: dec(m.t)}));
+        };
+
+        function login() {
+            const u = document.getElementById('un').value;
+            const k = document.getElementById('uk').value;
+            if(u && k === "OMO_SAFETY_2026_SECURE") { user = u; document.getElementById('auth').style.display='none'; }
+            else { alert("Wrong Key!"); }
         }
-    }
-    function endCall() {
-        if (localStream) {
-            localStream.getTracks().forEach(track => track.stop());
-            document.getElementById('localVideo').srcObject = null;
-        }
-    }
-</script>
 
+        async function call(v) {
+            document.getElementById('call-ui').style.display = 'flex';
+            document.getElementById('ring').play();
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: v, audio: true });
+                document.getElementById('localV').srcObject = stream;
+            } catch (e) { alert("Permission Denied"); hang(); }
+        }
+
+        function hang() {
+            if (stream) stream.getTracks().forEach(t => t.stop());
+            document.getElementById('call-ui').style.display = 'none';
+            document.getElementById('ring').pause();
+        }
+
+        function send() {
+            const i = document.getElementById('m-in');
+            if(i.value.trim()) {
+                const m = { u: user, t: enc(i.value) };
+                msgs.push(m);
+                localStorage.setItem('teta_msgs', JSON.stringify(msgs));
+                show({u: user, t: i.value});
+                i.value = '';
+            }
+        }
+
+        function show(m) {
+            const b = document.getElementById('chat-box');
+            const d = document.createElement('div');
+            d.className = `msg ${m.u === user ? 'sent' : 'received'}`;
+            d.innerHTML = `<b>${m.u}</b><br>${m.t}`;
+            b.appendChild(d); b.scrollTop = b.scrollHeight;
+        }
+
+        function toggleS() { document.getElementById('sidebar').classList.toggle('active'); }
+        function changeW(i) {
+            const r = new FileReader();
+            r.onload = e => {
+                document.getElementById('chat-box').style.backgroundImage = `url(${e.target.result})`;
+                localStorage.setItem('teta_w', e.target.result);
+            };
+            r.readAsDataURL(i.files[0]);
+        }
+    </script>
 </body>
 </html>
