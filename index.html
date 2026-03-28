@@ -3,106 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TETA BRAND - Secure Chat</title>
+    <title>TETA BRAND - Chat & Call</title>
     <style>
-        /* ለስልክ ስክሪን የተስተካከለ ዲዛይን */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Arial, sans-serif;
             margin: 0;
+            background-color: #f0f2f5;
             display: flex;
             flex-direction: column;
-            align-items: center;
             height: 100vh;
-            overflow: hidden;
         }
         header {
             background-color: #2481cc;
             color: white;
-            width: 100%;
-            padding: 15px;
+            padding: 10px;
             text-align: center;
             font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-size: 1.2rem;
         }
-        .video-container {
-            position: relative;
-            width: 95%;
-            max-width: 500px;
-            height: 70vh;
+        /* የቪዲዮ ጥሪ ክፍል (ከላይ በትንሹ እንዲታይ) */
+        .call-section {
             background: #000;
-            margin-top: 20px;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            height: 30vh;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            border-bottom: 2px solid #2481cc;
         }
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        video { width: 100%; height: 100%; object-fit: cover; }
         #localVideo {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 100px;
-            height: 150px;
-            border: 2px solid white;
-            border-radius: 10px;
-            z-index: 10;
+            bottom: 10px;
+            right: 10px;
+            width: 80px;
+            height: 110px;
+            border: 1px solid white;
+            border-radius: 5px;
+        }
+        /* የቻት ክፍል (ከስር እንዲሆን) */
+        .chat-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 10px;
         }
         .controls {
-            margin-top: 20px;
+            padding: 10px;
             display: flex;
-            gap: 20px;
+            justify-content: center;
+            gap: 10px;
+            background: #fff;
         }
         button {
-            padding: 12px 25px;
-            border-radius: 30px;
+            padding: 8px 20px;
+            border-radius: 20px;
             border: none;
+            color: white;
             font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
         }
-        .start-btn { background-color: #28a745; color: white; }
-        .hangup-btn { background-color: #dc3545; color: white; }
+        .btn-call { background-color: #28a745; }
+        .btn-end { background-color: #dc3545; }
     </style>
 </head>
 <body>
 
-<header>TETA BRAND - Private Call</header>
+<header>TETA BRAND</header>
 
-<div class="video-container">
+<div class="call-section">
     <video id="remoteVideo" autoplay playsinline></video>
     <video id="localVideo" autoplay playsinline muted></video>
 </div>
 
 <div class="controls">
-    <button class="start-btn" onclick="startCall()">Call</button>
-    <button class="hangup-btn" onclick="endCall()">End</button>
+    <button class="btn-call" onclick="startCall()">Start Call</button>
+    <button class="btn-end" onclick="endCall()">End</button>
+</div>
+
+<div class="chat-section">
+    <p style="text-align:center; color:#888;">Chat system is active below the call window.</p>
+    <div id="chat-messages"></div>
 </div>
 
 <script>
     let localStream;
-    const localVideo = document.getElementById('localVideo');
-    const remoteVideo = document.getElementById('remoteVideo');
-
-    // ካሜራ እና ማይክሮፎን እንዲከፈት መጠየቂያ
     async function startCall() {
         try {
             localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            localVideo.srcObject = localStream;
-            console.log("ካሜራ ተከፍቷል!");
-        } catch (error) {
-            alert("እባክህ በስልክህ Settings ውስጥ ለካሜራ ፈቃድ ስጥ (Allow Camera)");
-            console.error("Error accessing media devices.", error);
+            document.getElementById('localVideo').srcObject = localStream;
+        } catch (e) {
+            alert("ካሜራ ለመክፈት አልተቻለም። እባክህ Permission ስጥ።");
         }
     }
-
     function endCall() {
         if (localStream) {
             localStream.getTracks().forEach(track => track.stop());
-            localVideo.srcObject = null;
+            document.getElementById('localVideo').srcObject = null;
         }
     }
 </script>
