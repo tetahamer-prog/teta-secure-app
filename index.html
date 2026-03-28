@@ -3,46 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TETA ULTIMATE - Call Edition</title>
+    <title>TETA ULTIMATE - 2026</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --tg-header: #527da3; --tg-bg: #e6eff5; --tg-sent: #effdde; --tg-primary: #2481cc; --muted: #707579; }
+        :root { --tg-header: #527da3; --tg-bg: #e6eff5; --tg-sent: #effdde; --tg-primary: #2481cc; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; background: var(--tg-bg); }
 
-        /* Sidebar & Layout */
+        /* Sidebar */
         #menu-sidebar { width: 280px; background: white; position: fixed; left: -280px; height: 100%; transition: 0.3s; z-index: 2000; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
         #menu-sidebar.active { left: 0; }
         #chat-list-column { width: 320px; background: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; flex-shrink: 0; }
         #main-chat { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
-
         @media (max-width: 768px) { #chat-list-column { display: none; } }
 
-        header { background: var(--tg-header); color: white; padding: 10px 15px; display: flex; align-items: center; gap: 15px; z-index: 10; }
-        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; background-size: cover; background-position: center; transition: 0.5s; }
+        header { background: var(--tg-header); color: white; padding: 10px 15px; display: flex; align-items: center; gap: 15px; }
+        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; background-size: cover; background-position: center; }
         
-        /* Message Styles */
-        .msg { max-width: 75%; padding: 8px 12px; border-radius: 10px; font-size: 14.5px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); position: relative; cursor: pointer; }
-        .sent { align-self: flex-end; background: var(--tg-sent); border-bottom-right-radius: 2px; }
-        .received { align-self: flex-start; background: white; border-bottom-left-radius: 2px; }
-        .chat-img { max-width: 100%; border-radius: 8px; margin-top: 5px; }
+        /* Messages */
+        .msg { max-width: 75%; padding: 8px 12px; border-radius: 10px; font-size: 14.5px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); position: relative; }
+        .sent { align-self: flex-end; background: var(--tg-sent); }
+        .received { align-self: flex-start; background: white; }
 
-        /* Story Bar */
-        #story-bar { display: flex; gap: 10px; padding: 10px; overflow-x: auto; border-bottom: 1px solid #eee; background: white; }
-        .st-circle { width: 55px; height: 55px; border-radius: 50%; border: 2px solid var(--tg-primary); flex-shrink: 0; padding: 2px; cursor: pointer; }
-        .st-circle img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-
-        /* Calling System UI */
+        /* Call Screen */
         #call-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b141a; z-index: 5000; flex-direction: column; align-items: center; justify-content: center; color: white; }
         #remoteVideo { width: 100%; height: 100%; object-fit: cover; position: absolute; }
-        #localVideo { width: 100px; height: 150px; position: absolute; top: 20px; right: 20px; border: 2px solid white; border-radius: 10px; z-index: 5001; background: #222; }
+        #localVideo { width: 100px; height: 150px; position: absolute; top: 20px; right: 20px; border: 2px solid white; border-radius: 10px; z-index: 5001; }
         .call-btns { position: absolute; bottom: 50px; display: flex; gap: 30px; z-index: 5002; }
         .c-btn { width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; border: none; color: white; }
 
         .input-bar { background: white; padding: 10px; display: flex; align-items: center; gap: 15px; border-top: 1px solid #ddd; }
-        #delete-menu { display: none; position: fixed; background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 6000; padding: 10px; width: 180px; }
+        #auth { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; align-items: center; justify-content: center; z-index: 9000; }
     </style>
 </head>
-<body onclick="hideDeleteMenu()">
+<body>
 
     <div id="overlay" onclick="closeSidebar()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.3); z-index:1500;"></div>
 
@@ -51,27 +44,22 @@
             <div id="side-p" style="width:60px; height:60px; background:#2481cc; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; border:2px solid white; margin-bottom: 10px;">T</div>
             <b id="side-n">ተክለማርያም</b>
         </div>
-        <div class="menu-item" onclick="document.getElementById('wall-up').click()" style="padding:15px; cursor:pointer;"><i class="fas fa-image"></i> Change Wallpaper</div>
+        <div style="padding:15px; cursor:pointer;" onclick="document.getElementById('wall-up').click()"><i class="fas fa-image"></i> Change Wallpaper</div>
         <input type="file" id="wall-up" style="display:none" onchange="changeWallpaper(this)">
-        <div class="menu-item" onclick="clearStorage()" style="padding:15px; cursor:pointer; color:red;"><i class="fas fa-trash"></i> Clear History</div>
+        <div style="padding:15px; cursor:pointer; color:red;" onclick="localStorage.clear(); location.reload();"><i class="fas fa-trash"></i> Clear All Data</div>
     </div>
 
     <div id="chat-list-column">
         <div style="padding: 15px; display: flex; align-items: center; gap: 15px;">
-            <i class="fas fa-bars" onclick="openSidebar()" style="cursor:pointer; color: var(--muted);"></i>
+            <i class="fas fa-bars" onclick="openSidebar()" style="cursor:pointer; color: #777;"></i>
             <b>TETA BRAND</b>
-        </div>
-        <div id="story-bar">
-            <div class="st-circle" onclick="document.getElementById('st-up').click()" style="border: 2px dashed #ccc; display:flex; align-items:center; justify-content:center;"><i class="fas fa-plus"></i></div>
-            <input type="file" id="st-up" style="display:none" onchange="uploadStory(this)">
-            <div id="story-list" style="display:flex; gap:10px;"></div>
         </div>
     </div>
 
     <div id="main-chat">
         <header>
-            <div id="h-av" style="width:40px; height:40px; border-radius:50%; background:white; color:var(--tg-primary); display:flex; align-items:center; justify-content:center; font-weight:bold;">T</div>
-            <div style="flex:1"><b id="h-nm">TETA AI ✨</b><br><small>online</small></div>
+            <i class="fas fa-bars" onclick="openSidebar()" style="cursor:pointer;"></i>
+            <div style="flex:1"><b>TETA AI ✨</b><br><small>online</small></div>
             <i class="fas fa-phone" onclick="startRealCall(false)" style="cursor:pointer; margin-right: 20px;"></i>
             <i class="fas fa-video" onclick="startRealCall(true)" style="cursor:pointer;"></i>
         </header>
@@ -79,8 +67,6 @@
         <div id="chat-box"></div>
 
         <div class="input-bar">
-            <i class="fas fa-paperclip" onclick="document.getElementById('img-send').click()" style="cursor:pointer; color:var(--muted);"></i>
-            <input type="file" id="img-send" style="display:none" onchange="sendImage(this)">
             <input type="text" id="msg-in" placeholder="Message..." style="flex:1; border:none; outline:none;" onkeypress="if(event.key==='Enter') send()">
             <i class="fas fa-paper-plane" onclick="send()" style="color:var(--tg-primary); cursor:pointer;"></i>
         </div>
@@ -89,24 +75,22 @@
     <div id="call-screen">
         <video id="remoteVideo" autoplay playsinline></video>
         <video id="localVideo" autoplay playsinline muted></video>
-        <div id="call-info" style="position:absolute; top:100px; text-align:center; z-index:5005;">
-            <h2 id="calling-name">TETA AI</h2>
-            <p>Calling...</p>
-        </div>
         <div class="call-btns">
             <button class="c-btn" style="background:#ff3b30;" onclick="endRealCall()"><i class="fas fa-phone-slash"></i></button>
-            <button class="c-btn" style="background:#4cd964;" onclick="toggleMic()"><i class="fas fa-microphone"></i></button>
         </div>
         <audio id="ring" loop src="https://search66.com/files/ringtone/2021/08/nokia_tune.mp3"></audio>
     </div>
 
-    <div id="delete-menu">
-        <div class="del-opt" id="del-me-btn" style="padding:10px; cursor:pointer;">Delete for me</div>
+    <div id="auth">
+        <div style="text-align:center; width:280px;">
+            <h2>TETA LOGIN</h2>
+            <input id="u-n" placeholder="Name" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+            <input id="u-k" placeholder="Key" type="password" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+            <button onclick="login()" style="width:100%; padding:10px; background:var(--tg-primary); color:white; border:none; border-radius:8px; font-weight:bold;">ENTER</button>
+        </div>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io();
         let myName, localStream;
         let savedMessages = JSON.parse(localStorage.getItem('teta_msgs') || '[]');
 
@@ -116,58 +100,47 @@
             savedMessages.forEach(d => displayMessage(d));
         };
 
-        // Calling Logic
         async function startRealCall(video) {
-            const screen = document.getElementById('call-screen');
-            screen.style.display = 'flex';
+            document.getElementById('call-screen').style.display = 'flex';
             document.getElementById('ring').play();
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: video, audio: true });
                 document.getElementById('localVideo').srcObject = localStream;
-                if(!video) document.getElementById('localVideo').style.display = 'none';
+                document.getElementById('localVideo').style.display = video ? 'block' : 'none';
             } catch (e) {
-                alert("ካሜራ ወይም ማይክሮፎን ማግኘት አልተቻለም!");
-                endRealCall();
+                alert("ካሜራ ወይም ማይክሮፎን አልተፈቀደም! እባክዎ በብሮውዘርዎ Settings ውስጥ ይፍቀዱ።");
             }
         }
 
         function endRealCall() {
-            if (localStream) localStream.getTracks().forEach(track => track.stop());
+            if (localStream) localStream.getTracks().forEach(t => t.stop());
             document.getElementById('call-screen').style.display = 'none';
             document.getElementById('ring').pause();
-            document.getElementById('ring').currentTime = 0;
         }
 
-        // Messaging Logic
         function send() {
             const i = document.getElementById('msg-in');
             if(i.value.trim()) {
-                const data = { id: 'm-' + Date.now(), user: myName, text: i.value, type: 'text' };
-                socket.emit('chat_message', data);
+                const data = { user: myName, text: i.value };
+                displayMessage(data);
+                savedMessages.push(data);
+                localStorage.setItem('teta_msgs', JSON.stringify(savedMessages));
                 i.value = '';
             }
         }
 
-        socket.on('chat_message', d => {
-            displayMessage(d);
-            savedMessages.push(d);
-            localStorage.setItem('teta_msgs', JSON.stringify(savedMessages));
-        });
-
         function displayMessage(d) {
             const box = document.getElementById('chat-box');
             const div = document.createElement('div');
-            const isMe = d.user === myName;
-            div.className = `msg ${isMe ? 'sent' : 'received'}`;
-            div.id = d.id;
+            div.className = `msg ${d.user === myName ? 'sent' : 'received'}`;
             div.innerHTML = `<b>${d.user}</b><br>${d.text}`;
             box.appendChild(div);
             box.scrollTop = box.scrollHeight;
         }
 
-        // Sidebar & UI
         function openSidebar() { document.getElementById('menu-sidebar').classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
         function closeSidebar() { document.getElementById('menu-sidebar').classList.remove('active'); document.getElementById('overlay').style.display = 'none'; }
+        
         function changeWallpaper(input) {
             const r = new FileReader();
             r.onload = e => {
@@ -186,18 +159,6 @@
                 document.getElementById('side-p').innerText = u.charAt(0).toUpperCase();
             } else { alert("Key Error!"); }
         }
-        function clearStorage() { localStorage.removeItem('teta_msgs'); location.reload(); }
-        function hideDeleteMenu() { document.getElementById('delete-menu').style.display = 'none'; }
     </script>
-
-    <div id="auth" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; align-items:center; justify-content:center; z-index:9000;">
-        <div style="text-align:center; width:280px;">
-            <i class="fas fa-shield-alt" style="font-size:50px; color:var(--tg-primary);"></i>
-            <h2>TETA LOGIN</h2>
-            <input id="u-n" placeholder="Username" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
-            <input id="u-k" placeholder="Security Key" type="password" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
-            <button onclick="login()" style="width:100%; padding:10px; background:var(--tg-primary); color:white; border:none; border-radius:8px; font-weight:bold;">ENTER</button>
-        </div>
-    </div>
 </body>
 </html>
